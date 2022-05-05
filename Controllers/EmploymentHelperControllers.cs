@@ -48,6 +48,19 @@ namespace EmploymentHelper
                 return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
             }
         }
+
+        [HttpGet("Contacts/{lastName}")]
+        public async Task<ActionResult<IEnumerable<Contact>>> GetContacts(string lastName)
+        {
+            try
+            {
+                return await _eHLogic.GetContactsByLastName(lastName);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
     }
 
 
