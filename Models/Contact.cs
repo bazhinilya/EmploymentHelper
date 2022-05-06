@@ -22,7 +22,7 @@ namespace EmploymentHelper.Models
         public string FullName { get; set; }
 
         [DataMember(IsRequired = false)]
-        public DateTime BirthDate { get; set; }
+        public DateTime? BirthDate { get; set; }
 
         [DataMember(IsRequired = true)]
         public bool Gender { get; set; }

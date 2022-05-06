@@ -3,7 +3,6 @@ using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -59,6 +58,19 @@ namespace EmploymentHelper
             catch (Exception ex)
             {
                 return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<bool>> Post(int id, DateTime birthDate)
+        {
+            try
+            {
+                return await _eHLogic.UpdateContactBirthDate(id, birthDate);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

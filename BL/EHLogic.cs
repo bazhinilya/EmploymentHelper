@@ -10,10 +10,7 @@ namespace EmploymentHelper.BL
 {
     public class EHLogic
     {
-        public EHLogic(IConfiguration configuration)
-        {
-
-        }
+        public EHLogic(IConfiguration configuration) { }
 
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
@@ -25,7 +22,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new AccountsContext();
             return db.Accounts
-                .Where(a => a.Name == name)?/*.Contains(name, StringComparison.InvariantCultureIgnoreCase))*/
+                .Where(a => a.Name.Contains(name))?
                 .ToList();
         }
 
@@ -33,8 +30,24 @@ namespace EmploymentHelper.BL
         {
             await using var db = new AccountsContext();
             return db.Contacts
-                //.Where(a => a.LastName.Contains(lastName, StringComparison.InvariantCultureIgnoreCase))?
+                .Where(с => с.LastName.Contains(lastName))?
                 .ToList();
+        }
+
+        public async Task<ActionResult<bool>> UpdateContactBirthDate(int id, DateTime birthDate)
+        {
+            await using var db = new AccountsContext();
+
+            var contactToUpdate = db.Contacts.Where(c => c.Id == id).FirstOrDefault();
+
+            if (contactToUpdate != null)
+            {
+                contactToUpdate.BirthDate = birthDate;
+                await db.SaveChangesAsync();
+                return true;
+            }
+
+            return false; 
         }
     }
 }
