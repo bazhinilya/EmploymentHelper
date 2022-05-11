@@ -8,6 +8,7 @@ namespace EmploymentHelper.BL
         public DbSet<Account> Accounts { get; set; }
 
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<ContactAccount> ContactsAccounts { get;  set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

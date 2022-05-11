@@ -18,7 +18,7 @@ namespace EmploymentHelper.BL
             return db.Accounts.ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccountsByName(string name)
+        public async Task<ActionResult<IEnumerable<Account>>> GetAccountByName(string name)
         {
             await using var db = new AccountsContext();
             return db.Accounts
@@ -26,7 +26,7 @@ namespace EmploymentHelper.BL
                 .ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Contact>>> GetContactsByLastName(string lastName)
+        public async Task<ActionResult<IEnumerable<Contact>>> GetContactByLastName(string lastName)
         {
             await using var db = new AccountsContext();
             return db.Contacts
@@ -46,8 +46,29 @@ namespace EmploymentHelper.BL
                 await db.SaveChangesAsync();
                 return true;
             }
-
             return false; 
         }
+
+        public async Task<ActionResult<bool>> AddContactAccount(int contactId, int accountId)
+        {
+            await using var db = new AccountsContext();
+
+            //var contact = db.Contacts.Where(c => c.Id == contactId).FirstOrDefault();
+            //var account = db.Accounts.Where(a => a.Id == accountId).FirstOrDefault();
+
+            var contactAccount = db.ContactsAccounts
+                    .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
+                    .FirstOrDefault();
+
+            if (contactAccount == null)
+            {
+                db.ContactsAccounts.Add(new ContactAccount { ContactId = contactId, AccountId = accountId });
+                await db.SaveChangesAsync();
+
+
+            }
+            return true;
+        }
+
     }
 }

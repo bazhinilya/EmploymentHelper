@@ -39,7 +39,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetAccountsByName(name);
+                return await _eHLogic.GetAccountByName(name);
             }
             catch (Exception ex)
             {
@@ -49,11 +49,11 @@ namespace EmploymentHelper
         }
 
         [HttpGet("Contacts/{lastName}")]
-        public async Task<ActionResult<IEnumerable<Contact>>> GetContacts(string lastName)
+        public async Task<ActionResult<IEnumerable<Contact>>> GetContact(string lastName)
         {
             try
             {
-                return await _eHLogic.GetContactsByLastName(lastName);
+                return await _eHLogic.GetContactByLastName(lastName);
             }
             catch (Exception ex)
             {
@@ -73,6 +73,26 @@ namespace EmploymentHelper
                 return false;
             }
         }
+
+        [HttpPost("AddContactsAccounts/{contactId}")]
+        public async Task<ActionResult<bool>> AddContactAccountRelation(int contactId, [FromQuery] int accountId)
+        {
+            try
+            {
+                return await _eHLogic.AddContactAccount(contactId, accountId);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+
+
+
+
+        }
+
+    
     }
 
 
