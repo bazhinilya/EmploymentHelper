@@ -85,18 +85,6 @@ namespace EmploymentHelper
             {
                 return false;
             }
-
-
-
-
-
         }
-
-    
     }
-
-
-
-
-
 }

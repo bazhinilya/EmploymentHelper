@@ -12,7 +12,7 @@ namespace EmploymentHelper.BL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=LAPTOP-SU0HN95T\\SQLEXPRESS;Database=Accounts;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=LAPTOP-SU0HN95T\\SQLEXPRESS;Database=Vacancies;Trusted_Connection=True;");
         }
     }
 }

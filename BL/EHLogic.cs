@@ -52,10 +52,6 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<bool>> AddContactAccount(int contactId, int accountId)
         {
             await using var db = new AccountsContext();
-
-            //var contact = db.Contacts.Where(c => c.Id == contactId).FirstOrDefault();
-            //var account = db.Accounts.Where(a => a.Id == accountId).FirstOrDefault();
-
             var contactAccount = db.ContactsAccounts
                     .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
                     .FirstOrDefault();
@@ -64,8 +60,6 @@ namespace EmploymentHelper.BL
             {
                 db.ContactsAccounts.Add(new ContactAccount { ContactId = contactId, AccountId = accountId });
                 await db.SaveChangesAsync();
-
-
             }
             return true;
         }
