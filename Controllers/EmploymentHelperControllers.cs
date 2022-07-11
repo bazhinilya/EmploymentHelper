@@ -21,8 +21,8 @@ namespace EmploymentHelper
         }
 
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> Get()
+        [HttpGet("Accounts")]
+        public async Task<ActionResult<IEnumerable<Accounts>>> Get()
         {
             try
             {
@@ -34,8 +34,8 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("{name}")]
-        public async Task<ActionResult<IEnumerable<Account>>> Get(string name)
+        [HttpGet("Accounts/{name}")]
+        public async Task<ActionResult<IEnumerable<Accounts>>> Get(string name)
         {
             try
             {
@@ -48,12 +48,12 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("Contacts/{lastName}")]
-        public async Task<ActionResult<IEnumerable<Contact>>> GetContact(string lastName)
+        [HttpGet("Jobopenings")]
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings()
         {
             try
             {
-                return await _eHLogic.GetContactByLastName(lastName);
+                return await _eHLogic.GetAllJobopenings();
             }
             catch (Exception ex)
             {
@@ -61,30 +61,57 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult<bool>> Post(int id, DateTime birthDate)
+        [HttpGet("SkillsForJobopening/{jobopening}")]
+        public async Task<ActionResult<IEnumerable<Skills>>> GetSkillsForJobopening(string jobopening)
         {
+
             try
             {
-                return await _eHLogic.UpdateContactBirthDate(id, birthDate);
+                return await _eHLogic.GetSkillsForJobopening(jobopening);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
             }
         }
 
-        [HttpPost("AddContactsAccounts/{contactId}")]
-        public async Task<ActionResult<bool>> AddContactAccountRelation(int contactId, [FromQuery] int accountId)
-        {
-            try
-            {
-                return await _eHLogic.AddContactAccount(contactId, accountId);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+        //[HttpGet("Contacts/{lastName}")]
+        //public async Task<ActionResult<IEnumerable<Contact>>> GetContact(string lastName)
+        //{
+        //    try
+        //    {
+        //        return await _eHLogic.GetContactByLastName(lastName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+        //    }
+        //}
+
+        //[HttpPost]
+        //public async Task<ActionResult<bool>> Post(int id, DateTime birthDate)
+        //{
+        //    try
+        //    {
+        //        return await _eHLogic.UpdateContactBirthDate(id, birthDate);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        //[HttpPost("AddContactsAccounts/{contactId}")]
+        //public async Task<ActionResult<bool>> AddContactAccountRelation(int contactId, [FromQuery] int accountId)
+        //{
+        //    try
+        //    {
+        //        return await _eHLogic.AddContactAccount(contactId, accountId);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return false;
+        //    }
+        //}
     }
 }

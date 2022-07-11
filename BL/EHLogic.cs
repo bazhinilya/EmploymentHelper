@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.BL
@@ -12,13 +13,13 @@ namespace EmploymentHelper.BL
     {
         public EHLogic(IConfiguration configuration) { }
 
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts()
         {
             await using var db = new AccountsContext();
             return db.Accounts.ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccountByName(string name)
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName(string name)
         {
             await using var db = new AccountsContext();
             return db.Accounts
@@ -26,43 +27,90 @@ namespace EmploymentHelper.BL
                 .ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Contact>>> GetContactByLastName(string lastName)
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetAllJobopenings()
         {
             await using var db = new AccountsContext();
-            return db.Contacts
-                .Where(с => с.LastName.Contains(lastName))?
+            return db.Jobopenings.ToList();
+        }
+
+        public async Task<ActionResult<IEnumerable<Skills>>> GetSkillsForJobopening(string jobopening)
+        {
+            await using var db = new AccountsContext();
+            return db.Jobopenings
+                .Where(j => j.Name.Contains(jobopening))
+                .Join(db.JobopeningsSkills,
+                    j => j.Id,
+                    js => js.JobopeningId,
+                    (j, js) => new
+                    {
+                        SkillId = js.SkillId,
+                    })?
+                .Join(db.Skills,
+                    js => js.SkillId,
+                    s => s.Id,
+                    (js, s) => new Skills
+                    {
+                        Name = s.Name,
+                        Id = s.Id,
+                    })?
                 .ToList();
+            /*new Regex($"{job.Name}").IsMatch(jobopening)*/
+            #region 2 approach
+            //return
+            //    (from job in db.Jobopenings.ToList()
+            //     join jobSkl in db.JobopeningsSkills.ToList()
+            //         on job.Id equals jobSkl.JobopeningId
+            //     join skl in db.Skills.ToList()
+            //         on jobSkl.SkillId equals skl.Id
+            //     where job.Name.Contains(jobopening)
+            //     orderby skl.Name
+            //     select new Skills
+            //     {
+            //         Id = skl.Id,
+            //         Name = skl.Name
+            //     })?
+            //    .ToList();
+            #endregion
         }
 
-        public async Task<ActionResult<bool>> UpdateContactBirthDate(int id, DateTime birthDate)
-        {
-            await using var db = new AccountsContext();
+        #region other methods
+        //public async Task<ActionResult<IEnumerable<Contact>>> GetContactByLastName(string lastName)
+        //{
+        //    await using var db = new AccountsContext();
+        //    return db.Contacts
+        //        .Where(с => с.LastName.Contains(lastName))?
+        //        .ToList();
+        //}
 
-            var contactToUpdate = db.Contacts.Where(c => c.Id == id).FirstOrDefault();
+        //public async Task<ActionResult<bool>> UpdateContactBirthDate(int id, DateTime birthDate)
+        //{
+        //    await using var db = new AccountsContext();
 
-            if (contactToUpdate != null)
-            {
-                contactToUpdate.BirthDate = birthDate;
-                await db.SaveChangesAsync();
-                return true;
-            }
-            return false; 
-        }
+        //    var contactToUpdate = db.Contacts.Where(c => c.Id == id).FirstOrDefault();
 
-        public async Task<ActionResult<bool>> AddContactAccount(int contactId, int accountId)
-        {
-            await using var db = new AccountsContext();
-            var contactAccount = db.ContactsAccounts
-                    .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
-                    .FirstOrDefault();
+        //    if (contactToUpdate != null)
+        //    {
+        //        contactToUpdate.BirthDate = birthDate;
+        //        await db.SaveChangesAsync();
+        //        return true;
+        //    }
+        //    return false; 
+        //}
 
-            if (contactAccount == null)
-            {
-                db.ContactsAccounts.Add(new ContactAccount { ContactId = contactId, AccountId = accountId });
-                await db.SaveChangesAsync();
-            }
-            return true;
-        }
+        //public async Task<ActionResult<bool>> AddContactAccount(int contactId, int accountId)
+        //{
+        //    await using var db = new AccountsContext();
+        //    var contactAccount = db.ContactsAccounts
+        //            .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
+        //            .FirstOrDefault();
 
+        //    if (contactAccount == null)
+        //    {
+        //        db.ContactsAccounts.Add(new ContactAccount { ContactId = contactId, AccountId = accountId });
+        //        await db.SaveChangesAsync();
+        //    }
+        //    return true;
+        //}
+        #endregion
     }
 }

@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace EmploymentHelper.Models
 {
     [DataContract]
-    public class Account
+    public class Accounts
     {
         [DataMember(IsRequired = true)]
         public Guid Id { get; set; }
