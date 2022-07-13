@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.BL
@@ -97,20 +96,55 @@ namespace EmploymentHelper.BL
         //    return false; 
         //}
 
-        //public async Task<ActionResult<bool>> AddContactAccount(int contactId, int accountId)
-        //{
-        //    await using var db = new AccountsContext();
-        //    var contactAccount = db.ContactsAccounts
-        //            .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
-        //            .FirstOrDefault();
+        public async Task<ActionResult<bool>> AddContactAccount(int contactId, int accountId)
+        {
+            await using var db = new AccountsContext();
+            var contactAccount = db.ContactsAccounts
+                    .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
+                    .FirstOrDefault();
 
-        //    if (contactAccount == null)
-        //    {
-        //        db.ContactsAccounts.Add(new ContactAccount { ContactId = contactId, AccountId = accountId });
-        //        await db.SaveChangesAsync();
-        //    }
-        //    return true;
-        //}
+            if (contactAccount == null)
+            {
+                db.ContactsAccounts.Add(new ContactAccount { ContactId = contactId, AccountId = accountId });
+                await db.SaveChangesAsync();
+            }
+            return true;
+        }
         #endregion
+
+
+        public async Task<ActionResult<bool>> AddVacancy(string vacancyPlacesName, string jobopeningName, string accountName)
+        {
+            await using var db = new AccountsContext();
+
+            var vacancyToAdd = db.VacancyPlaces
+                    .Where(vp => vp.Name == vacancyPlacesName)
+                    .FirstOrDefault();
+
+            var jobopeningToAdd = db.Jobopenings
+                    .Where(j => j.Name == jobopeningName)
+                    .FirstOrDefault();
+            
+            var accountToAdd = db.Accounts
+                    .Where(a => a.Name == accountName)
+                    .FirstOrDefault();
+
+            if (vacancyToAdd == null)
+            {
+                db.VacancyPlaces.Add(new VacancyPlaces { Name = vacancyPlacesName, Id = Guid.NewGuid(), Code = });
+                await db.SaveChangesAsync();
+            }
+            if (jobopeningName == null)
+            {
+                db.Jobopenings.Add(new Jobopenings { Name = jobopeningName, Id = Guid.NewGuid(), AccountId = , Specialization = , WorkExperienceInYears =  });
+                await db.SaveChangesAsync();
+            }
+            if (accountToAdd == null)
+            {
+                db.Accounts.Add(new Accounts { Name = accountName, Id = Guid.NewGuid(), INN = });
+                await db.SaveChangesAsync();
+            }
+            return true;
+        }
     }
 }

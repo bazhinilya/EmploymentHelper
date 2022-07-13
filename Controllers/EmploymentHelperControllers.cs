@@ -101,17 +101,17 @@ namespace EmploymentHelper
         //    }
         //}
 
-        //[HttpPost("AddContactsAccounts/{contactId}")]
-        //public async Task<ActionResult<bool>> AddContactAccountRelation(int contactId, [FromQuery] int accountId)
-        //{
-        //    try
-        //    {
-        //        return await _eHLogic.AddContactAccount(contactId, accountId);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return false;
-        //    }
-        //}
+        [HttpPost("AddContactsAccounts/{contactId}")]
+        public async Task<ActionResult<bool>> AddContactAccountRelation(int contactId, [FromQuery] int accountId)
+        {
+            try
+            {
+                return await _eHLogic.AddContactAccount(contactId, accountId);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
