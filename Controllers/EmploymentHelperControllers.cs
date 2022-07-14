@@ -75,38 +75,16 @@ namespace EmploymentHelper
             }
         }
 
-        //[HttpGet("Contacts/{lastName}")]
-        //public async Task<ActionResult<IEnumerable<Contact>>> GetContact(string lastName)
-        //{
-        //    try
-        //    {
-        //        return await _eHLogic.GetContactByLastName(lastName);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-        //    }
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult<bool>> Post(int id, DateTime birthDate)
-        //{
-        //    try
-        //    {
-        //        return await _eHLogic.UpdateContactBirthDate(id, birthDate);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return false;
-        //    }
-        //}
-
-        [HttpPost("AddContactsAccounts/{contactId}")]
-        public async Task<ActionResult<bool>> AddContactAccountRelation(int contactId, [FromQuery] int accountId)
+        [HttpPost("AddVacancy")]
+        public async Task<ActionResult<bool>> AddVacancy([FromQuery] string vacancyPlaceName, [FromQuery] string code, 
+            [FromQuery] string jobopeningName, [FromQuery] string specializationName, 
+            [FromQuery] byte workExperienceInYears, [FromQuery] string accountName, [FromQuery] string linkName)
         {
             try
             {
-                return await _eHLogic.AddContactAccount(contactId, accountId);
+                return await _eHLogic
+                    .AddVacancy(vacancyPlaceName, code, jobopeningName, 
+                    specializationName, workExperienceInYears, accountName, linkName);
             }
             catch (Exception)
             {

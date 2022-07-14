@@ -12,7 +12,7 @@ namespace EmploymentHelper.Models
         [DataMember(IsRequired = true)]
         public string Name { get; set; }
         
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = false)]
         public string INN { get; set; }
     }
 }

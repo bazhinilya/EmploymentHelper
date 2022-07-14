@@ -53,7 +53,6 @@ namespace EmploymentHelper.BL
                         Id = s.Id,
                     })?
                 .ToList();
-            /*new Regex($"{job.Name}").IsMatch(jobopening)*/
             #region 2 approach
             //return
             //    (from job in db.Jobopenings.ToList()
@@ -72,78 +71,53 @@ namespace EmploymentHelper.BL
             #endregion
         }
 
-        #region other methods
-        //public async Task<ActionResult<IEnumerable<Contact>>> GetContactByLastName(string lastName)
-        //{
-        //    await using var db = new AccountsContext();
-        //    return db.Contacts
-        //        .Where(с => с.LastName.Contains(lastName))?
-        //        .ToList();
-        //}
-
-        //public async Task<ActionResult<bool>> UpdateContactBirthDate(int id, DateTime birthDate)
-        //{
-        //    await using var db = new AccountsContext();
-
-        //    var contactToUpdate = db.Contacts.Where(c => c.Id == id).FirstOrDefault();
-
-        //    if (contactToUpdate != null)
-        //    {
-        //        contactToUpdate.BirthDate = birthDate;
-        //        await db.SaveChangesAsync();
-        //        return true;
-        //    }
-        //    return false; 
-        //}
-
-        public async Task<ActionResult<bool>> AddContactAccount(int contactId, int accountId)
+        public async Task<ActionResult<bool>> AddVacancy(string vacancyPlaceName, string code, string jobopeningName, 
+            string specializationName, byte workExperienceInYears, string accountName, string link)
         {
             await using var db = new AccountsContext();
-            var contactAccount = db.ContactsAccounts
-                    .Where(ca => ca.ContactId == contactId && ca.AccountId == accountId)
-                    .FirstOrDefault();
+            var vacancyPlace = db.VacancyPlaces.FirstOrDefault(vp => vp.Name == vacancyPlaceName);
+            var account = db.Accounts.FirstOrDefault(a => a.Name == accountName);
+            var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
 
-            if (contactAccount == null)
+            Guid vacancyPlaceId;
+            if (vacancyPlace == null)
             {
-                db.ContactsAccounts.Add(new ContactAccount { ContactId = contactId, AccountId = accountId });
-                await db.SaveChangesAsync();
+                vacancyPlaceId = Guid.NewGuid();
+                db.VacancyPlaces.Add(new VacancyPlaces { Name = vacancyPlaceName, Id = vacancyPlaceId, Code = code });
             }
-            return true;
-        }
-        #endregion
-
-
-        public async Task<ActionResult<bool>> AddVacancy(string vacancyPlacesName, string jobopeningName, string accountName)
-        {
-            await using var db = new AccountsContext();
-
-            var vacancyToAdd = db.VacancyPlaces
-                    .Where(vp => vp.Name == vacancyPlacesName)
-                    .FirstOrDefault();
-
-            var jobopeningToAdd = db.Jobopenings
-                    .Where(j => j.Name == jobopeningName)
-                    .FirstOrDefault();
-            
-            var accountToAdd = db.Accounts
-                    .Where(a => a.Name == accountName)
-                    .FirstOrDefault();
-
-            if (vacancyToAdd == null)
+            else
             {
-                db.VacancyPlaces.Add(new VacancyPlaces { Name = vacancyPlacesName, Id = Guid.NewGuid(), Code = });
-                await db.SaveChangesAsync();
+                vacancyPlaceId = vacancyPlace.Id;
             }
-            if (jobopeningName == null)
+
+            Guid accountId;
+            if (account == null)
             {
-                db.Jobopenings.Add(new Jobopenings { Name = jobopeningName, Id = Guid.NewGuid(), AccountId = , Specialization = , WorkExperienceInYears =  });
-                await db.SaveChangesAsync();
+                accountId = Guid.NewGuid();
+                db.Accounts.Add(new Accounts { Name = accountName, Id = accountId });
             }
-            if (accountToAdd == null)
+            else
             {
-                db.Accounts.Add(new Accounts { Name = accountName, Id = Guid.NewGuid(), INN = });
-                await db.SaveChangesAsync();
+                accountId = account.Id;
             }
+
+            if (!jobopening?.Any() ?? true)
+            {
+                db.Jobopenings.Add(new Jobopenings
+                {
+                    Name = jobopeningName,
+                    Id = Guid.NewGuid(),
+                    AccountId = accountId,
+                    Specialization = specializationName,
+                    WorkExperienceInYears = workExperienceInYears,
+                    Link = link
+                });
+            }
+            else
+            {
+                throw new Exception("This vacancy already exists, more than one has been found.");
+            }
+            await db.SaveChangesAsync();
             return true;
         }
     }
