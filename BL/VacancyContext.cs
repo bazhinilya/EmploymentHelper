@@ -1,11 +1,14 @@
 ﻿using EmploymentHelper.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
 
 namespace EmploymentHelper.BL
 {
-    public class AccountsContext : DbContext
+    public class VacancyContext : DbContext
     {
         public DbSet<Accounts> Accounts { get; set; }
+        public DbSet<AllSkills> AllSkills { get; set; }
         public DbSet<Communications> Communications { get; set; }
         public DbSet<Contacts> Contacts { get; set; }
         public DbSet<Jobopenings> Jobopenings { get; set; }
@@ -19,7 +22,11 @@ namespace EmploymentHelper.BL
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=LAPTOP-SU0HN95T\\SQLEXPRESS;Database=Vacancies;Trusted_Connection=True;");
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json")
+            .Build();
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("MSSQLConn"));
         }
     }
 }

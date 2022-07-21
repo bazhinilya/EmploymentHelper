@@ -14,13 +14,13 @@ namespace EmploymentHelper.BL
 
         public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts()
         {
-            await using var db = new AccountsContext();
+            await using var db = new VacancyContext();
             return db.Accounts.ToList();
         }
 
         public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName(string name)
         {
-            await using var db = new AccountsContext();
+            await using var db = new VacancyContext();
             return db.Accounts
                 .Where(a => a.Name.Contains(name))?
                 .ToList();
@@ -28,31 +28,32 @@ namespace EmploymentHelper.BL
 
         public async Task<ActionResult<IEnumerable<Jobopenings>>> GetAllJobopenings()
         {
-            await using var db = new AccountsContext();
+            await using var db = new VacancyContext();
             return db.Jobopenings.ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Skills>>> GetSkillsForJobopening(string jobopening)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsForJobopening(string jobopening)
         {
-            await using var db = new AccountsContext();
-            return db.Jobopenings
-                .Where(j => j.Name.Contains(jobopening))
-                .Join(db.JobopeningsSkills,
-                    j => j.Id,
-                    js => js.JobopeningId,
-                    (j, js) => new
-                    {
-                        SkillId = js.SkillId,
-                    })?
-                .Join(db.Skills,
-                    js => js.SkillId,
-                    s => s.Id,
-                    (js, s) => new Skills
-                    {
-                        Name = s.Name,
-                        Id = s.Id,
-                    })?
-                .ToList();
+            await using var db = new VacancyContext();
+            return db.AllSkills.ToList();
+                //db.Jobopenings
+                //.Where(j => j.Name.Contains(jobopening))
+                //.Join(db.JobopeningsSkills,
+                //    j => j.Id,
+                //    js => js.JobopeningId,
+                //    (j, js) => new
+                //    {
+                //        js.SkillId,
+                //    })?
+                //.Join(db.Skills,
+                //    js => js.SkillId,
+                //    s => s.Id,
+                //    (js, s) => new Skills
+                //    {
+                //        Name = s.Name,
+                //        Id = s.Id,
+                //    })?
+                //.ToList();
             #region 2 approach
             //return
             //    (from job in db.Jobopenings.ToList()
@@ -74,7 +75,7 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<bool>> AddVacancy(string vacancyPlaceName, string code, string jobopeningName, 
             string specializationName, byte workExperienceInYears, string accountName, string link)
         {
-            await using var db = new AccountsContext();
+            await using var db = new VacancyContext();
             var vacancyPlace = db.VacancyPlaces.FirstOrDefault(vp => vp.Name == vacancyPlaceName);
             var account = db.Accounts.FirstOrDefault(a => a.Name == accountName);
             var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
@@ -120,5 +121,23 @@ namespace EmploymentHelper.BL
             await db.SaveChangesAsync();
             return true;
         }
+
+        //public async Task<ActionResult<bool>> AddVacancyConditions(string conditionValue, string conditionType)
+        //{
+        //    await using var db = new VacancyContext();
+
+        //    var vacancyConditions = db.VacancyConditions.FirstOrDefault(vc => vc.ConditionValue == conditionValue);
+
+        //    if (vacancyConditions == null)
+        //    {
+        //        db.VacancyPlaces.Add(new VacancyConditions
+        //        {
+        //            Id = Guid.NewGuid(),
+        //            ConditionValue = conditionValue,
+        //            ConditionType = conditionType,
+        //            JobopeningId = 
+        //        });
+        //    }
+        //}
     }
 }

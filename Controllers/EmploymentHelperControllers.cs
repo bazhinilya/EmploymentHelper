@@ -34,7 +34,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("Accounts/{name}")]
+        [HttpGet("Accounts/{account}")]
         public async Task<ActionResult<IEnumerable<Accounts>>> Get(string name)
         {
             try
@@ -62,7 +62,7 @@ namespace EmploymentHelper
         }
 
         [HttpGet("SkillsForJobopening/{jobopening}")]
-        public async Task<ActionResult<IEnumerable<Skills>>> GetSkillsForJobopening(string jobopening)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsForJobopening(string jobopening)
         {
 
             try
@@ -91,5 +91,8 @@ namespace EmploymentHelper
                 return false;
             }
         }
+
+        //[HttpPost("")]
+        //public async Task<ActionResult<bool>> Add
     }
 }

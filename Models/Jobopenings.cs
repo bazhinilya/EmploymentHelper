@@ -6,7 +6,7 @@ namespace EmploymentHelper.Models
 	{
 		public Guid Id { get; set; }
 		public string Name { get; set; }
-		public string Specialization { get; set; }
+		public Guid SpecializationId { get; set; }
 		public byte WorkExperienceInYears { get; set; }
 		public Guid AccountId { get; set; }
 		public string Link { get; set; }
