@@ -22,7 +22,7 @@ namespace EmploymentHelper
 
 
         [HttpGet("Accounts")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> Get()
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAllAccounts()
         {
             try
             {
@@ -35,11 +35,25 @@ namespace EmploymentHelper
         }
 
         [HttpGet("Accounts/{account}")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> Get(string name)
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName(string name)
         {
             try
             {
-                return await _eHLogic.GetAccountByName(name);
+                return await _eHLogic.GetAccount(name);
+            }
+            catch (Exception ex)
+            {
+
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpPost("Accounts")]
+        public async Task<ActionResult<Accounts>> AddINNByName([FromQuery] string name, [FromQuery] string inn)
+        {
+            try
+            {
+                return await _eHLogic.AddInn(name, inn);
             }
             catch (Exception ex)
             {
@@ -49,11 +63,11 @@ namespace EmploymentHelper
         }
 
         [HttpGet("Jobopenings")]
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings()
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetAllJobopenings()
         {
             try
             {
-                return await _eHLogic.GetAllJobopenings();
+                return await _eHLogic.GetJobopenings();
             }
             catch (Exception ex)
             {
@@ -62,12 +76,12 @@ namespace EmploymentHelper
         }
 
         [HttpGet("SkillsForJobopening/{jobopening}")]
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsForJobopening(string jobopening)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllJobSkills(string jobopening)
         {
 
             try
             {
-                return await _eHLogic.GetSkillsForJobopening(jobopening);
+                return await _eHLogic.GetAllSkillsView(jobopening);
             }
             catch (Exception ex)
             {
@@ -76,15 +90,15 @@ namespace EmploymentHelper
         }
 
         [HttpPost("AddVacancy")]
-        public async Task<ActionResult<bool>> AddVacancy([FromQuery] string vacancyPlaceName, [FromQuery] string code, 
-            [FromQuery] string jobopeningName, [FromQuery] string specializationName, 
-            [FromQuery] byte workExperienceInYears, [FromQuery] string accountName, [FromQuery] string linkName)
+        public async Task<ActionResult<bool>> AddVacancy([FromQuery] string vacancyPlace, [FromQuery] string code, 
+            [FromQuery] string jobopeningName, [FromQuery] string specializationCode, 
+            [FromQuery] string accountName, [FromQuery] string linkName)
         {
             try
             {
                 return await _eHLogic
-                    .AddVacancy(vacancyPlaceName, code, jobopeningName, 
-                    specializationName, workExperienceInYears, accountName, linkName);
+                    .AddVacancy(vacancyPlace, code, jobopeningName,
+                    specializationCode, accountName, linkName);
             }
             catch (Exception)
             {

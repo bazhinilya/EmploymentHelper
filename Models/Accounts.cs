@@ -1,18 +1,11 @@
-﻿using System;
-using System.Runtime.Serialization;
-
+using System;
 namespace EmploymentHelper.Models
 {
-    [DataContract]
-    public class Accounts
-    {
-        [DataMember(IsRequired = true)]
-        public Guid Id { get; set; }
+public class Accounts
+{
+	public Guid Id { get; set; }
+	public string Name { get; set; }
+	public string INN { get; set; }
 
-        [DataMember(IsRequired = true)]
-        public string Name { get; set; }
-        
-        [DataMember(IsRequired = false)]
-        public string INN { get; set; }
-    }
+}
 }

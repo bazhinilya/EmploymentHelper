@@ -1,5 +1,4 @@
 using System;
-
 namespace EmploymentHelper.Models
 {
 public class VacancyPlaces

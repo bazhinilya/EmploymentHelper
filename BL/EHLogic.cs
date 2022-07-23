@@ -18,7 +18,7 @@ namespace EmploymentHelper.BL
             return db.Accounts.ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName(string name)
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccount(string name)
         {
             await using var db = new VacancyContext();
             return db.Accounts
@@ -26,65 +26,48 @@ namespace EmploymentHelper.BL
                 .ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetAllJobopenings()
+        public async Task<ActionResult<Accounts>> AddInn(string name, string inn)
+        {
+            await using var db = new VacancyContext();
+            var accounts = db.Accounts.Where(a => a.Name == name);
+            if (accounts != null && accounts.Count() == 1)
+            {
+                accounts.First().INN = inn;
+            }
+            else
+            {
+                throw new Exception("Uniqueness error, more than one account was found");
+            }
+            await db.SaveChangesAsync();
+            return accounts.First();
+        }
+
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings()
         {
             await using var db = new VacancyContext();
             return db.Jobopenings.ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsForJobopening(string jobopening)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllSkillsView(string jobopening)
         {
             await using var db = new VacancyContext();
             return db.AllSkills.ToList();
-                //db.Jobopenings
-                //.Where(j => j.Name.Contains(jobopening))
-                //.Join(db.JobopeningsSkills,
-                //    j => j.Id,
-                //    js => js.JobopeningId,
-                //    (j, js) => new
-                //    {
-                //        js.SkillId,
-                //    })?
-                //.Join(db.Skills,
-                //    js => js.SkillId,
-                //    s => s.Id,
-                //    (js, s) => new Skills
-                //    {
-                //        Name = s.Name,
-                //        Id = s.Id,
-                //    })?
-                //.ToList();
-            #region 2 approach
-            //return
-            //    (from job in db.Jobopenings.ToList()
-            //     join jobSkl in db.JobopeningsSkills.ToList()
-            //         on job.Id equals jobSkl.JobopeningId
-            //     join skl in db.Skills.ToList()
-            //         on jobSkl.SkillId equals skl.Id
-            //     where job.Name.Contains(jobopening)
-            //     orderby skl.Name
-            //     select new Skills
-            //     {
-            //         Id = skl.Id,
-            //         Name = skl.Name
-            //     })?
-            //    .ToList();
-            #endregion
         }
 
-        public async Task<ActionResult<bool>> AddVacancy(string vacancyPlaceName, string code, string jobopeningName, 
-            string specializationName, byte workExperienceInYears, string accountName, string link)
+        public async Task<ActionResult<bool>> AddVacancy(string vacancyPlaceName, string vacancyPlaceCode, string jobopeningName,
+            string specializationCode, string accountName, string link)
         {
             await using var db = new VacancyContext();
             var vacancyPlace = db.VacancyPlaces.FirstOrDefault(vp => vp.Name == vacancyPlaceName);
             var account = db.Accounts.FirstOrDefault(a => a.Name == accountName);
+            var specializations = db.Specializations.Where(s => s.Code == specializationCode);
             var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
 
             Guid vacancyPlaceId;
             if (vacancyPlace == null)
             {
                 vacancyPlaceId = Guid.NewGuid();
-                db.VacancyPlaces.Add(new VacancyPlaces { Name = vacancyPlaceName, Id = vacancyPlaceId, Code = code });
+                db.VacancyPlaces.Add(new VacancyPlaces { Name = vacancyPlaceName, Id = vacancyPlaceId, Code = vacancyPlaceCode });
             }
             else
             {
@@ -102,6 +85,16 @@ namespace EmploymentHelper.BL
                 accountId = account.Id;
             }
 
+            Guid specializationId;
+            if (specializations != null && specializations.Count() == 1)
+            {
+                specializationId = specializations.First().Id;
+            }
+            else
+            {
+                throw new Exception("This specialization does not exist or more than one has been found.");
+            }
+
             if (!jobopening?.Any() ?? true)
             {
                 db.Jobopenings.Add(new Jobopenings
@@ -109,8 +102,7 @@ namespace EmploymentHelper.BL
                     Name = jobopeningName,
                     Id = Guid.NewGuid(),
                     AccountId = accountId,
-                    Specialization = specializationName,
-                    WorkExperienceInYears = workExperienceInYears,
+                    SpecializationId = specializationId,
                     Link = link
                 });
             }
@@ -122,22 +114,34 @@ namespace EmploymentHelper.BL
             return true;
         }
 
-        //public async Task<ActionResult<bool>> AddVacancyConditions(string conditionValue, string conditionType)
-        //{
-        //    await using var db = new VacancyContext();
+        public async Task<ActionResult<bool>> AddVacancyConditions(string jobopeningName, string conditionValue, string conditionType)
+        {
+            await using var db = new VacancyContext();
+            var vacancyConditions = db.VacancyConditions.FirstOrDefault(vc => vc.ConditionValue == conditionValue);
+            var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
 
-        //    var vacancyConditions = db.VacancyConditions.FirstOrDefault(vc => vc.ConditionValue == conditionValue);
+            Guid jobopeningId;
+            if (jobopening != null && jobopening.Count() == 1)
+            {
+                jobopeningId = jobopening.First().Id;
+            }
+            else
+            {
+                throw new Exception("Uniqueness error, more than one vacancy was found.");
+            }
 
-        //    if (vacancyConditions == null)
-        //    {
-        //        db.VacancyPlaces.Add(new VacancyConditions
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            ConditionValue = conditionValue,
-        //            ConditionType = conditionType,
-        //            JobopeningId = 
-        //        });
-        //    }
-        //}
+            if (vacancyConditions == null)
+            {
+                db.VacancyConditions.Add(new VacancyConditions
+                {
+                    Id = Guid.NewGuid(),
+                    ConditionValue = conditionValue,
+                    ConditionType = conditionType,
+                    JobopeningId = jobopeningId,
+                });
+            }
+            await db.SaveChangesAsync();
+            return true;
+        }
     }
 }
