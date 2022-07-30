@@ -118,16 +118,29 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
         {
             await using var db = new VacancyContext();
-            var jobopening = db.Jobopenings.Where(j => j.Id == idFromJobopenings);
-            var account = db.Accounts.FirstOrDefault(j => j.Id == jobopening.First().AccountId);
-            var jobopening2 = db.Jobopenings.FirstOrDefault(j => j.Id == idFromJobopenings);
+            var jobopening = db.Jobopenings.FirstOrDefault(j => j.Id == idFromJobopenings);
+            var account = db.Accounts.FirstOrDefault(a => a.Id == jobopening.AccountId);
 
-            if (jobopening != null && jobopening.Count() == 1)
+            if (jobopening != null && account != null)
             {
-                db.Jobopenings.Remove(jobopening2);
-                db.Accounts.Remove(account);
-                await db.SaveChangesAsync();
+                
+
+                //var accountId = account.Id;
+                db.Jobopenings.Remove(jobopening);
+                
             }
+
+            //Guid accountId;
+            //if (account == null)
+            //{
+            //    accountId
+            //}
+
+            //jobopening.AccountId
+            await db.SaveChangesAsync();
+
+            db.Accounts.Remove(account);
+            await db.SaveChangesAsync();
             return db.Jobopenings.ToList();
         }
 
