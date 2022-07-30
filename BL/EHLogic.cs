@@ -54,6 +54,23 @@ namespace EmploymentHelper.BL
             return db.AllSkills.ToList();
         }
 
+        public async Task<ActionResult<Specializations>> AddSpecialization(string name, string code)
+        {
+            await using var db = new VacancyContext();
+            var specialization = db.Specializations.Where(s => s.Name == name);
+
+            if (specialization == null)
+            {
+                db.Specializations.Add(new Specializations { Id = Guid.NewGuid(), Name = name, Code = code });
+            }
+            else
+            {
+                throw new Exception("This specialization already exists.");
+            }
+
+            return specialization.First();
+        }
+
         public async Task<ActionResult<bool>> AddVacancy(string vacancyPlaceName, string vacancyPlaceCode, string jobopeningName,
             string specializationCode, string accountName, string link)
         {
@@ -114,33 +131,34 @@ namespace EmploymentHelper.BL
             return true;
         }
 
-        //TODO: edit method, it fall
         public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
         {
             await using var db = new VacancyContext();
+            var vacancyConditions = db.VacancyConditions.Where(vc => vc.JobopeningId == idFromJobopenings);
             var jobopening = db.Jobopenings.FirstOrDefault(j => j.Id == idFromJobopenings);
             var account = db.Accounts.FirstOrDefault(a => a.Id == jobopening.AccountId);
 
-            if (jobopening != null && account != null)
+            if (vacancyConditions != null)
             {
-                
-
-                //var accountId = account.Id;
-                db.Jobopenings.Remove(jobopening);
-                
+                foreach (var vacancyCondition in vacancyConditions)
+                {
+                    db.VacancyConditions.Remove(vacancyCondition);
+                }
+                await db.SaveChangesAsync();
             }
 
-            //Guid accountId;
-            //if (account == null)
-            //{
-            //    accountId
-            //}
+            if (jobopening != null)
+            {
+                db.Jobopenings.Remove(jobopening);
+                await db.SaveChangesAsync();
+            }
 
-            //jobopening.AccountId
-            await db.SaveChangesAsync();
-
-            db.Accounts.Remove(account);
-            await db.SaveChangesAsync();
+            if (account != null)
+            {
+                db.Accounts.Remove(account);
+                await db.SaveChangesAsync();
+            }
+            
             return db.Jobopenings.ToList();
         }
 
@@ -184,6 +202,21 @@ namespace EmploymentHelper.BL
                 await db.SaveChangesAsync();
             }
             return db.VacancyConditions.ToList();
+        }
+
+        public async Task<ActionResult<Jobopenings>> DeleteConditions(Guid jobopeningId)
+        {
+            await using var db = new VacancyContext();
+            var vacancyConditions = db.VacancyConditions.Where(vc => vc.JobopeningId == jobopeningId);
+            if (vacancyConditions != null)
+            {
+                foreach (var vacancyCondition in vacancyConditions)
+                {
+                    db.VacancyConditions.Remove(vacancyCondition);
+                }
+                await db.SaveChangesAsync();
+            }
+            return db.Jobopenings.FirstOrDefault(j => j.Id == jobopeningId);
         }
 
     }

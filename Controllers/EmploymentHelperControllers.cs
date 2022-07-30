@@ -89,6 +89,19 @@ namespace EmploymentHelper
             }
         }
 
+        [HttpPost("Specializations/AddSpecialization")]
+        public async Task<ActionResult<Specializations>> AddSpecialization([FromQuery] string name, [FromQuery] string code)
+        {
+            try
+            {
+                return await _eHLogic.AddSpecialization(name, code);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
         [HttpPost("Jobopenings/AddVacancy")]
         public async Task<ActionResult<bool>> AddVacancy([FromQuery] string vacancyPlace, [FromQuery] string code, 
             [FromQuery] string jobopeningName, [FromQuery] string specializationCode, 
@@ -139,6 +152,19 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.DeleteCondition(idFromVacancyConditions);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpDelete("VacancyConditions/DeleteVacancyConditions")]
+        public async Task<ActionResult<Jobopenings>> DeleteVacancyConditions([FromQuery] Guid jobopeningId)
+        {
+            try
+            {
+                return await _eHLogic.DeleteConditions(jobopeningId);
             }
             catch (Exception ex)
             {
