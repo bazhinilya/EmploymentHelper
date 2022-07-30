@@ -103,7 +103,7 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Jobopenings/AddVacancy")]
-        public async Task<ActionResult<bool>> AddVacancy([FromQuery] string vacancyPlace, [FromQuery] string code, 
+        public async Task<ActionResult<Jobopenings>> AddVacancy([FromQuery] string vacancyPlace, [FromQuery] string code, 
             [FromQuery] string jobopeningName, [FromQuery] string specializationCode, 
             [FromQuery] string accountName, [FromQuery] string linkName)
         {
@@ -113,9 +113,9 @@ namespace EmploymentHelper
                     .AddVacancy(vacancyPlace, code, jobopeningName,
                     specializationCode, accountName, linkName);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -133,16 +133,16 @@ namespace EmploymentHelper
         }
 
         [HttpPost("VacancyConditions/AddConditionForVacancy")]
-        public async Task<ActionResult<bool>> AddConditionForVacancy([FromQuery] string jobopeningName, 
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddConditionForVacancy([FromQuery] string jobopeningName, 
             [FromQuery] string conditionValue, [FromQuery] string conditionType)
         {
             try
             {
                 return await _eHLogic.AddVacancyCondition(jobopeningName, conditionValue, conditionType);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
             }
         }
 

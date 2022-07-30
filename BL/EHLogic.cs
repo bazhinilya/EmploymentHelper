@@ -71,7 +71,7 @@ namespace EmploymentHelper.BL
             return specialization.First();
         }
 
-        public async Task<ActionResult<bool>> AddVacancy(string vacancyPlaceName, string vacancyPlaceCode, string jobopeningName,
+        public async Task<ActionResult<Jobopenings>> AddVacancy(string vacancyPlaceName, string vacancyPlaceCode, string jobopeningName,
             string specializationCode, string accountName, string link)
         {
             await using var db = new VacancyContext();
@@ -128,7 +128,7 @@ namespace EmploymentHelper.BL
                 throw new Exception("This vacancy already exists, more than one has been found.");
             }
             await db.SaveChangesAsync();
-            return true;
+            return jobopening.First();
         }
 
         public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
@@ -162,7 +162,7 @@ namespace EmploymentHelper.BL
             return db.Jobopenings.ToList();
         }
 
-        public async Task<ActionResult<bool>> AddVacancyCondition(string jobopeningName, string conditionValue, string conditionType)
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName, string conditionValue, string conditionType)
         {
             await using var db = new VacancyContext();
             var vacancyConditions = db.VacancyConditions.FirstOrDefault(vc => vc.ConditionValue == conditionValue);
@@ -189,7 +189,7 @@ namespace EmploymentHelper.BL
                 });
             }
             await db.SaveChangesAsync();
-            return true;
+            return db.VacancyConditions.Where(vc => vc.JobopeningId == jobopeningId).ToList();
         }
 
         public async Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteCondition(Guid idFromVacancyConditions)
