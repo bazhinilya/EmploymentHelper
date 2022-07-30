@@ -21,7 +21,7 @@ namespace EmploymentHelper
         }
 
 
-        [HttpGet("Accounts")]
+        [HttpGet("Accounts/GetAllAccounts")]
         public async Task<ActionResult<IEnumerable<Accounts>>> GetAllAccounts()
         {
             try
@@ -34,8 +34,8 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("Accounts/{account}")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName(string name)
+        [HttpGet("Accounts/GetAccountByName")]
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName([FromQuery] string name)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Accounts")]
+        [HttpPost("Accounts/AddINNByName")]
         public async Task<ActionResult<Accounts>> AddINNByName([FromQuery] string name, [FromQuery] string inn)
         {
             try
@@ -62,7 +62,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("Jobopenings")]
+        [HttpGet("Jobopenings/GetAllJobopenings")]
         public async Task<ActionResult<IEnumerable<Jobopenings>>> GetAllJobopenings()
         {
             try
@@ -75,8 +75,8 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("SkillsForJobopening/{jobopening}")]
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllJobSkills(string jobopening)
+        [HttpGet("AllSkills/GetAllJobSkills")]
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllJobSkills([FromQuery] string jobopening)
         {
 
             try
@@ -89,7 +89,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("AddVacancy")]
+        [HttpPost("Jobopenings/AddVacancy")]
         public async Task<ActionResult<bool>> AddVacancy([FromQuery] string vacancyPlace, [FromQuery] string code, 
             [FromQuery] string jobopeningName, [FromQuery] string specializationCode, 
             [FromQuery] string accountName, [FromQuery] string linkName)
@@ -106,7 +106,44 @@ namespace EmploymentHelper
             }
         }
 
-        //[HttpPost("")]
-        //public async Task<ActionResult<bool>> Add
+        [HttpDelete("Jobopenings/DeleteVacancy")]
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy([FromQuery] Guid idFromJobopenings)
+        {
+            try
+            {
+                return await _eHLogic.DeleteVacancy(idFromJobopenings);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpPost("VacancyConditions/AddConditionForVacancy")]
+        public async Task<ActionResult<bool>> AddConditionForVacancy([FromQuery] string jobopeningName, 
+            [FromQuery] string conditionValue, [FromQuery] string conditionType)
+        {
+            try
+            {
+                return await _eHLogic.AddVacancyCondition(jobopeningName, conditionValue, conditionType);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        [HttpDelete("VacancyConditions/DeleteVacancyCondition")]
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteVacancyCondition([FromQuery] Guid idFromVacancyConditions)
+        {
+            try
+            {
+                return await _eHLogic.DeleteCondition(idFromVacancyConditions);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
     }
 }

@@ -114,7 +114,24 @@ namespace EmploymentHelper.BL
             return true;
         }
 
-        public async Task<ActionResult<bool>> AddVacancyConditions(string jobopeningName, string conditionValue, string conditionType)
+        //TODO: edit method, it fall
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
+        {
+            await using var db = new VacancyContext();
+            var jobopening = db.Jobopenings.Where(j => j.Id == idFromJobopenings);
+            var account = db.Accounts.FirstOrDefault(j => j.Id == jobopening.First().AccountId);
+            var jobopening2 = db.Jobopenings.FirstOrDefault(j => j.Id == idFromJobopenings);
+
+            if (jobopening != null && jobopening.Count() == 1)
+            {
+                db.Jobopenings.Remove(jobopening2);
+                db.Accounts.Remove(account);
+                await db.SaveChangesAsync();
+            }
+            return db.Jobopenings.ToList();
+        }
+
+        public async Task<ActionResult<bool>> AddVacancyCondition(string jobopeningName, string conditionValue, string conditionType)
         {
             await using var db = new VacancyContext();
             var vacancyConditions = db.VacancyConditions.FirstOrDefault(vc => vc.ConditionValue == conditionValue);
@@ -143,5 +160,18 @@ namespace EmploymentHelper.BL
             await db.SaveChangesAsync();
             return true;
         }
+
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteCondition(Guid idFromVacancyConditions)
+        {
+            await using var db = new VacancyContext();
+            var vacancyCondition = db.VacancyConditions.FirstOrDefault(vc => vc.Id == idFromVacancyConditions);
+            if (vacancyCondition != null)
+            {
+                db.VacancyConditions.Remove(vacancyCondition);
+                await db.SaveChangesAsync();
+            }
+            return db.VacancyConditions.ToList();
+        }
+
     }
 }
