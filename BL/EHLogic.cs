@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace EmploymentHelper.BL
 {
-    public class EHLogic
+    public class EHLogic /*: IEmploymentHelper*/
     {
-        public EHLogic(IConfiguration configuration) { }
+        public EHLogic() { }
 
         public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts()
         {
@@ -42,16 +42,16 @@ namespace EmploymentHelper.BL
             return accounts.First();
         }
 
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings()
-        {
-            await using var db = new VacancyContext();
-            return db.Jobopenings.ToList();
-        }
-
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllSkillsView(string jobopening)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllSkillsView()
         {
             await using var db = new VacancyContext();
             return db.AllSkills.ToList();
+        }
+
+        public async Task<ActionResult<IEnumerable<Specializations>>> GetAllSpecializations()
+        {
+            await using var db = new VacancyContext();
+            return db.Specializations.ToList();
         }
 
         public async Task<ActionResult<Specializations>> AddSpecialization(string name, string code)
@@ -67,8 +67,14 @@ namespace EmploymentHelper.BL
             {
                 throw new Exception("This specialization already exists.");
             }
-
+            await db.SaveChangesAsync();
             return specialization.First();
+        }
+
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetAllJobopenings()
+        {
+            await using var db = new VacancyContext();
+            return db.Jobopenings.ToList();
         }
 
         public async Task<ActionResult<Jobopenings>> AddVacancy(string vacancyPlaceName, string vacancyPlaceCode, string jobopeningName,
@@ -219,5 +225,54 @@ namespace EmploymentHelper.BL
             return db.Jobopenings.FirstOrDefault(j => j.Id == jobopeningId);
         }
 
+        public async Task<ActionResult<IEnumerable<Contacts>>> AddContact(Guid accountId, string lastName, string firstName, 
+            string middleName, DateTime birthDate, bool gender) 
+        {
+            await using var db = new VacancyContext();
+            var contact = db.Contacts.Where(c => c.AccountId == accountId && c.LastName == lastName);
+            if (contact == null || !contact.Any())
+            {
+                db.Contacts.Add(new Contacts
+                {
+                    AccountId = accountId,
+                    LastName = lastName,
+                    FirstName = firstName,
+                    MiddleName = middleName,
+                    BirthDate = birthDate,
+                    Gender = gender,
+                    Id = Guid.NewGuid()
+                });
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("Uniqueness error, this contact exists.");
+            }
+
+            return contact.ToList();
+        }
+
+        //public async Task<ActionResult<IEnumerable<Communications>>> AddCommunication(string commType, string commValue)
+        //{
+        //    await using var db = new VacancyContext();
+        //    var communication = db.Communications.Where(c => c.CommValue == commValue);
+        //    if (commValue == null && commValue.Length == 1)
+        //    {
+        //        db.Add(new Communications 
+        //        { 
+        //            Id = Guid.NewGuid(), 
+        //            CommType = commType, 
+        //            CommValue = commValue, 
+        //            AccountId = , 
+        //            ContactId = 
+        //        });
+        //        await db.SaveChangesAsync();
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Uniqueness error, more than one communication value was found.");
+        //    }
+        //    return communication.ToList();
+        //}
     }
 }
