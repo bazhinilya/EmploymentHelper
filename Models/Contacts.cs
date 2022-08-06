@@ -7,8 +7,8 @@ public class Contacts
 	public string LastName { get; set; }
 	public string FirstName { get; set; }
 	public string MiddleName { get; set; }
-		//public string FullName { get; set; } = null;
-	public DateTime? BirthDate { get; set; }
+    public string FullName { get; set; }
+    public DateTime? BirthDate { get; set; }
 	public bool Gender { get; set; }
 	public Guid AccountId { get; set; }
 

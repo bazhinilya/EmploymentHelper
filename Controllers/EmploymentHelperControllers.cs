@@ -19,12 +19,12 @@ namespace EmploymentHelper
             _eHLogic = new EHLogic();
         }
 
-        [HttpGet("Accounts/GetAllAccounts")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAllAccounts()
+        [HttpGet("Accounts/GetAccounts")]
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts()
         {
             try
             {
-                return await _eHLogic.GetAccounts();
+                return await _eHLogic.GetAllAccounts();
             }
             catch (Exception ex)
             {
@@ -136,6 +136,19 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.DeleteVacancy(idFromJobopenings);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpPost("Skills/AddSkill")]
+        public async Task<ActionResult<Skills>> AddSkill([FromQuery] string jobopeningName, [FromQuery] string skillName)
+        {
+            try
+            {
+                return await _eHLogic.AddSkill(jobopeningName, skillName);
             }
             catch (Exception ex)
             {

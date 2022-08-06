@@ -12,7 +12,7 @@ namespace EmploymentHelper.BL
     {
         public EHLogic() { }
 
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts()
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAllAccounts()
         {
             await using var db = new VacancyContext();
             return db.Accounts.ToList();
@@ -168,6 +168,35 @@ namespace EmploymentHelper.BL
             return db.Jobopenings.ToList();
         }
 
+        public async Task<ActionResult<Skills>> AddSkill(string jobopeningName, string skillName)
+        {
+            await using var db = new VacancyContext();
+            var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
+            var skill = db.Skills.Where(sk => sk.Name == skillName);
+
+            Guid skillId;
+            Guid jobopeningId = jobopening.First().Id;
+
+            if ((skill == null || !skill.Any()) && jobopening != null)
+            {
+                skillId = Guid.NewGuid();
+                db.Add(new Skills { Id = skillId, Name = skillName });
+                await db.SaveChangesAsync();
+
+                var jobopeningSkill = db.JobopeningsSkills.FirstOrDefault(js => js.SkillId == skillId);
+                if (jobopeningSkill == null)
+                {
+                    db.Add(new JobopeningsSkills { Id = Guid.NewGuid(), SkillId = skillId, JobopeningId = jobopeningId });
+                    await db.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                throw new Exception("Uniqueness error, this skill exists for this vacancy.");
+            }
+            return skill.First();
+        }
+
         public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName, string conditionValue, string conditionType)
         {
             await using var db = new VacancyContext();
@@ -243,6 +272,7 @@ namespace EmploymentHelper.BL
                     LastName = lastName,
                     FirstName = firstName,
                     MiddleName = middleName,
+                    FullName = middleName == null ? $"{lastName} {firstName}" : $"{lastName} {firstName} {middleName}",
                     BirthDate = birthDate,
                     Gender = gender,
                     Id = contactId
