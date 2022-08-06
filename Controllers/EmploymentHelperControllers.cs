@@ -183,14 +183,15 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Contacts/AddContact")]
-        public async Task<ActionResult<IEnumerable<Contacts>>> AddContact(Guid accountId, string lastName, string firstName,
-            string middleName, DateTime birthDate, bool gender)
+        [HttpPost("Contacts/AddContact")]//add view
+        public async Task<ActionResult<Contacts>> AddContact([FromQuery] Guid accountId, [FromQuery] string lastName, 
+            [FromQuery] string firstName, [FromQuery] bool gender, DateTime? birthDate, string middleName = null, 
+            string commType = null, string commValue = null)
         {
             try
             {
-                return await _eHLogic.AddContact(accountId, lastName, firstName,
-            middleName, birthDate, gender);
+                return await _eHLogic.AddContactAndCommunication(accountId, lastName, firstName,
+            gender, birthDate, middleName, commType, commValue);
             }
             catch (Exception ex)
             {
@@ -198,17 +199,18 @@ namespace EmploymentHelper
             }
         }
 
-        //[HttpPost("Communications/AddCommunication")]
-        //public async Task<ActionResult<IEnumerable<Communications>>> AddCommunication([FromQuery] string commType, [FromQuery] string commValue)
-        //{
-        //    try
-        //    {
-        //        return await _eHLogic.AddCommunication(commType, commValue);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-        //    }
-        //}
+        [HttpPost("Communications/AddCommunication")]
+        public async Task<ActionResult<Communications>> AddCommunication([FromQuery] Guid contactId, [FromQuery] string commType, 
+            [FromQuery] string commValue)
+        {
+            try
+            {
+                return await _eHLogic.AddCommunication(contactId, commType, commValue);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
     }
 }

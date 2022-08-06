@@ -225,13 +225,18 @@ namespace EmploymentHelper.BL
             return db.Jobopenings.FirstOrDefault(j => j.Id == jobopeningId);
         }
 
-        public async Task<ActionResult<IEnumerable<Contacts>>> AddContact(Guid accountId, string lastName, string firstName, 
-            string middleName, DateTime birthDate, bool gender) 
+        public async Task<ActionResult<Contacts>> AddContactAndCommunication(Guid accountId, string lastName, string firstName, 
+            bool gender, DateTime? birthDate, string middleName = null, string commType = null, string commValue = null) 
         {
             await using var db = new VacancyContext();
-            var contact = db.Contacts.Where(c => c.AccountId == accountId && c.LastName == lastName);
+            var contact = db.Contacts.Where(c => c.AccountId == accountId 
+                                            && c.LastName == lastName && c.BirthDate == birthDate);
+            var communication = db.Communications.Where(c => c.AccountId == accountId 
+                                                        && c.CommType == commType && c.CommValue == commValue);
+            Guid contactId;
             if (contact == null || !contact.Any())
             {
+                contactId = Guid.NewGuid();
                 db.Contacts.Add(new Contacts
                 {
                     AccountId = accountId,
@@ -240,39 +245,54 @@ namespace EmploymentHelper.BL
                     MiddleName = middleName,
                     BirthDate = birthDate,
                     Gender = gender,
-                    Id = Guid.NewGuid()
+                    Id = contactId
+                });
+                await db.SaveChangesAsync();
+
+                if ((communication == null || !communication.Any()) && (commType != null && commValue != null))
+                {
+                    db.Communications.Add(new Communications
+                    {
+                        AccountId = accountId,
+                        CommType = commType,
+                        CommValue = commValue,
+                        ContactId = contactId,
+                        Id = contactId
+                    });
+                    await db.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                throw new Exception("Uniqueness error, this contact or communication exists.");
+            }
+
+            return contact.First();//view contacts/communications
+        }
+
+        public async Task<ActionResult<Communications>> AddCommunication(Guid contactId, string commType, string commValue)
+        {
+            await using var db = new VacancyContext();
+            var communication = db.Communications.Where(c => c.ContactId == contactId 
+                                                        && c.CommType == commType && c.CommValue == commValue);
+            var contact = db.Contacts.FirstOrDefault(c => c.Id == contactId);
+            if (communication == null || !communication.Any())
+            {
+                db.Add(new Communications
+                {
+                    Id = Guid.NewGuid(),
+                    CommType = commType,
+                    CommValue = commValue,
+                    AccountId = contact.AccountId,
+                    ContactId = contactId
                 });
                 await db.SaveChangesAsync();
             }
             else
             {
-                throw new Exception("Uniqueness error, this contact exists.");
+                throw new Exception("Uniqueness error, more than one communication value was found.");
             }
-
-            return contact.ToList();
+            return communication.First();
         }
-
-        //public async Task<ActionResult<IEnumerable<Communications>>> AddCommunication(string commType, string commValue)
-        //{
-        //    await using var db = new VacancyContext();
-        //    var communication = db.Communications.Where(c => c.CommValue == commValue);
-        //    if (commValue == null && commValue.Length == 1)
-        //    {
-        //        db.Add(new Communications 
-        //        { 
-        //            Id = Guid.NewGuid(), 
-        //            CommType = commType, 
-        //            CommValue = commValue, 
-        //            AccountId = , 
-        //            ContactId = 
-        //        });
-        //        await db.SaveChangesAsync();
-        //    }
-        //    else
-        //    {
-        //        throw new Exception("Uniqueness error, more than one communication value was found.");
-        //    }
-        //    return communication.ToList();
-        //}
     }
 }
