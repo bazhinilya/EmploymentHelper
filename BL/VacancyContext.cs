@@ -15,6 +15,7 @@ namespace EmploymentHelper.BL
         public DbSet<JobopeningsSkills> JobopeningsSkills { get; set; }
         public DbSet<JobopeningsVacancyPlaces> JobopeningsVacancyPlaces { get; set; }
         public DbSet<Skills> Skills { get; set; }
+        public DbSet<SkillsJobopening> SkillsJobopening { get; set; } 
         public DbSet<Specializations> Specializations { get; set; }
         public DbSet<SpecializationsSkills> SpecializationsSkills { get; set; }
         public DbSet<VacancyConditions> VacancyConditions { get; set; }

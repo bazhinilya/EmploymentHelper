@@ -194,7 +194,7 @@ namespace EmploymentHelper.BL
             {
                 throw new Exception("Uniqueness error, this skill exists for this vacancy.");
             }
-            return db.SkillsJobopening.Where(j => j.IdJobopening == jobopening.First().Id);
+            return db.SkillsJobopening.Where(j => j.IdJobopening == jobopening.First().Id).ToList();
         }
 
         public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName, 
