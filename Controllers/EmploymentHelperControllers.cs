@@ -114,14 +114,14 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Jobopenings/AddVacancy")]
-        public async Task<ActionResult<Jobopenings>> AddVacancy([FromQuery] string vacancyPlace, [FromQuery] string code, 
+        public async Task<ActionResult<Jobopenings>> AddVacancy([FromQuery] string vacancyPlace, 
             [FromQuery] string jobopeningName, [FromQuery] string specializationCode, 
             [FromQuery] string accountName, [FromQuery] string linkName)
         {
             try
             {
                 return await _eHLogic
-                    .AddVacancy(vacancyPlace, code, jobopeningName,
+                    .AddVacancy(vacancyPlace, jobopeningName,
                     specializationCode, accountName, linkName);
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Skills/AddSkill")]
-        public async Task<ActionResult<Skills>> AddSkill([FromQuery] string jobopeningName, [FromQuery] string skillName)
+        public async Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill([FromQuery] string jobopeningName, [FromQuery] string skillName)
         {
             try
             {

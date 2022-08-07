@@ -59,7 +59,7 @@ namespace EmploymentHelper.BL
             await using var db = new VacancyContext();
             var specialization = db.Specializations.Where(s => s.Name == name);
 
-            if (specialization == null)
+            if (specialization == null || !specialization.Any())
             {
                 db.Specializations.Add(new Specializations { Id = Guid.NewGuid(), Name = name, Code = code });
             }
@@ -77,7 +77,7 @@ namespace EmploymentHelper.BL
             return db.Jobopenings.ToList();
         }
 
-        public async Task<ActionResult<Jobopenings>> AddVacancy(string vacancyPlaceName, string vacancyPlaceCode, string jobopeningName,
+        public async Task<ActionResult<Jobopenings>> AddVacancy(string vacancyPlaceName, string jobopeningName,
             string specializationCode, string accountName, string link)
         {
             await using var db = new VacancyContext();
@@ -90,7 +90,7 @@ namespace EmploymentHelper.BL
             if (vacancyPlace == null)
             {
                 vacancyPlaceId = Guid.NewGuid();
-                db.VacancyPlaces.Add(new VacancyPlaces { Name = vacancyPlaceName, Id = vacancyPlaceId, Code = vacancyPlaceCode });
+                db.VacancyPlaces.Add(new VacancyPlaces { Name = vacancyPlaceName, Id = vacancyPlaceId });
             }
             else
             {
@@ -168,7 +168,7 @@ namespace EmploymentHelper.BL
             return db.Jobopenings.ToList();
         }
 
-        public async Task<ActionResult<Skills>> AddSkill(string jobopeningName, string skillName)
+        public async Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill(string jobopeningName, string skillName)
         {
             await using var db = new VacancyContext();
             var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
@@ -177,7 +177,7 @@ namespace EmploymentHelper.BL
             Guid skillId;
             Guid jobopeningId = jobopening.First().Id;
 
-            if ((skill == null || !skill.Any()) && jobopening != null)
+            if (jobopening != null )
             {
                 skillId = Guid.NewGuid();
                 db.Add(new Skills { Id = skillId, Name = skillName });
@@ -194,10 +194,11 @@ namespace EmploymentHelper.BL
             {
                 throw new Exception("Uniqueness error, this skill exists for this vacancy.");
             }
-            return skill.First();
+            return db.SkillsJobopening.Where(j => j.IdJobopening == jobopening.First().Id);
         }
 
-        public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName, string conditionValue, string conditionType)
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName, 
+            string conditionValue, string conditionType)
         {
             await using var db = new VacancyContext();
             var vacancyConditions = db.VacancyConditions.FirstOrDefault(vc => vc.ConditionValue == conditionValue);
@@ -222,6 +223,10 @@ namespace EmploymentHelper.BL
                     ConditionType = conditionType,
                     JobopeningId = jobopeningId,
                 });
+            }
+            else
+            {
+                jobopeningId = jobopening.First().Id;
             }
             await db.SaveChangesAsync();
             return db.VacancyConditions.Where(vc => vc.JobopeningId == jobopeningId).ToList();
