@@ -143,7 +143,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Skills/AddSkill")]
+        [HttpPost("SkillsJobopening/AddSkill")]
         public async Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill([FromQuery] string jobopeningName, [FromQuery] string skillName)
         {
             try
