@@ -19,12 +19,12 @@ namespace EmploymentHelper
             _eHLogic = new EHLogic();
         }
 
-        [HttpGet("Accounts/GetAccounts")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts()
+        [HttpGet("Specializations/Get")]
+        public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations([FromQuery] string columnName = null)
         {
             try
             {
-                return await _eHLogic.GetAllAccounts();
+                return await _eHLogic.GetSpecializations(columnName);
             }
             catch (Exception ex)
             {
@@ -32,62 +32,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("Accounts/GetAccountByName")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName([FromQuery] string name)
-        {
-            try
-            {
-                return await _eHLogic.GetAccount(name);
-            }
-            catch (Exception ex)
-            {
-
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpPost("Accounts/AddINNByName")]
-        public async Task<ActionResult<Accounts>> AddINNByName([FromQuery] string name, [FromQuery] string inn)
-        {
-            try
-            {
-                return await _eHLogic.AddInn(name, inn);
-            }
-            catch (Exception ex)
-            {
-
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpGet("AllSkills/GetAllJobSkills")]
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllJobSkills()
-        {
-
-            try
-            {
-                return await _eHLogic.GetAllSkillsView();
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpGet("Specializations/GetSpecializations")]
-        public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations()
-        {
-            try
-            {
-                return await _eHLogic.GetAllSpecializations();
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpPost("Specializations/AddSpecialization")]
+        [HttpPost("Specializations/Add")]
         public async Task<ActionResult<Specializations>> AddSpecialization([FromQuery] string name, [FromQuery] string code)
         {
             try
@@ -100,12 +45,12 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpGet("Jobopenings/GetJobopenings")]
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings()
+        [HttpGet("Jobopenings/Get")]
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings([FromQuery] string columnName = null)
         {
             try
             {
-                return await _eHLogic.GetAllJobopenings();
+                return await _eHLogic.GetJobopenings(columnName);
             }
             catch (Exception ex)
             {
@@ -113,9 +58,9 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Jobopenings/AddVacancy")]
-        public async Task<ActionResult<Jobopenings>> AddVacancy([FromQuery] string vacancyPlace, 
-            [FromQuery] string jobopeningName, [FromQuery] string specializationCode, 
+        [HttpPost("Jobopenings/Add")]
+        public async Task<ActionResult<Jobopenings>> AddVacancy([FromQuery] string vacancyPlace,
+            [FromQuery] string jobopeningName, [FromQuery] string specializationCode,
             [FromQuery] string accountName, [FromQuery] string linkName)
         {
             try
@@ -130,7 +75,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("Jobopenings/DeleteVacancy")]
+        [HttpDelete("Jobopenings/Delete")]
         public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy([FromQuery] Guid idFromJobopenings)
         {
             try
@@ -143,7 +88,48 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("SkillsJobopening/AddSkill")]
+        [HttpGet("Accounts/Get")]
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName([FromQuery] string columnName = null)
+        {
+            try
+            {
+                return await _eHLogic.GetAccounts(columnName);
+            }
+            catch (Exception ex)
+            {
+
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpPost("Accounts/AddInn")]
+        public async Task<ActionResult<Accounts>> UpdateINNByName([FromQuery] string name, [FromQuery] string inn)
+        {
+            try
+            {
+                return await _eHLogic.AddInn(name, inn);
+            }
+            catch (Exception ex)
+            {
+
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpGet("AllSkills/Get")]
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetJobSkills([FromQuery] string columnName = null)
+        {
+            try
+            {
+                return await _eHLogic.GetSkillsView(columnName);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }                                               
+              
+        [HttpPost("SkillsJobopening/Add")]
         public async Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill([FromQuery] string jobopeningName, [FromQuery] string skillName)
         {
             try
@@ -156,9 +142,22 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("VacancyConditions/AddConditionForVacancy")]
-        public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddConditionForVacancy([FromQuery] string jobopeningName, 
-            [FromQuery] string conditionValue, [FromQuery] string conditionType)
+        [HttpGet("VacancyConditions/Get")]
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> GetConditions([FromQuery] string columnName = null)
+        {
+            try
+            {
+                return await _eHLogic.GetAllConditions(columnName);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpPost("VacancyConditions/Add")]
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddConditionForVacancy([FromQuery] string jobopeningName,
+            [FromQuery] string conditionType, [FromQuery] string conditionValue)
         {
             try
             {
@@ -170,12 +169,12 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("VacancyConditions/DeleteVacancyCondition")]
-        public async Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteVacancyCondition([FromQuery] Guid idFromVacancyConditions)
+        [HttpDelete("VacancyConditions/Delete")]
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteVacancyConditions([FromQuery] Guid? id, [FromQuery] Guid? jobopeningId)
         {
             try
             {
-                return await _eHLogic.DeleteCondition(idFromVacancyConditions);
+                return await _eHLogic.DeleteVacancyConditions(id, jobopeningId);
             }
             catch (Exception ex)
             {
@@ -183,20 +182,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("VacancyConditions/DeleteVacancyConditions")]
-        public async Task<ActionResult<Jobopenings>> DeleteVacancyConditions([FromQuery] Guid jobopeningId)
-        {
-            try
-            {
-                return await _eHLogic.DeleteConditions(jobopeningId);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpPost("Contacts/AddContact")]//add view
+        [HttpPost("Contacts/Add")]//add view
         public async Task<ActionResult<Contacts>> AddContact([FromQuery] Guid accountId, [FromQuery] string lastName, 
             [FromQuery] string firstName, [FromQuery] bool gender, DateTime? birthDate, string middleName = null, 
             string commType = null, string commValue = null)
@@ -212,7 +198,7 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Communications/AddCommunication")]
+        [HttpPost("Communications/Add")]
         public async Task<ActionResult<Communications>> AddCommunication([FromQuery] Guid contactId, [FromQuery] string commType, 
             [FromQuery] string commValue)
         {
