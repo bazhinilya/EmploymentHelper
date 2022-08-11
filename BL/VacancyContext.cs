@@ -8,6 +8,7 @@ namespace EmploymentHelper.BL
     public class VacancyContext : DbContext
     {
         public DbSet<Accounts> Accounts { get; set; }
+        public DbSet<AllAccounts> AllAccounts { get; set; }
         public DbSet<AllSkills> AllSkills { get; set; }
         public DbSet<Communications> Communications { get; set; }
         public DbSet<Contacts> Contacts { get; set; }

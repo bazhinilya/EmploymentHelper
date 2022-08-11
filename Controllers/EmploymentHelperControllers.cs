@@ -20,11 +20,11 @@ namespace EmploymentHelper
         }
 
         [HttpGet("Specializations/Get")]
-        public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations([FromQuery] string columnName = null)
+        public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations([FromQuery] string columnValue = null)
         {
             try
             {
-                return await _eHLogic.GetSpecializations(columnName);
+                return await _eHLogic.GetSpecializations(columnValue);
             }
             catch (Exception ex)
             {
@@ -46,11 +46,11 @@ namespace EmploymentHelper
         }
 
         [HttpGet("Jobopenings/Get")]
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings([FromQuery] string columnName = null)
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings([FromQuery] string columnValue = null)
         {
             try
             {
-                return await _eHLogic.GetJobopenings(columnName);
+                return await _eHLogic.GetJobopenings(columnValue);
             }
             catch (Exception ex)
             {
@@ -89,11 +89,11 @@ namespace EmploymentHelper
         }
 
         [HttpGet("Accounts/Get")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccountByName([FromQuery] string columnName = null)
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts([FromQuery] string columnValue = null)
         {
             try
             {
-                return await _eHLogic.GetAccounts(columnName);
+                return await _eHLogic.GetAccounts(columnValue);
             }
             catch (Exception ex)
             {
@@ -117,18 +117,18 @@ namespace EmploymentHelper
         }
 
         [HttpGet("AllSkills/Get")]
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetJobSkills([FromQuery] string columnName = null)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsJobopening([FromQuery] string columnValue = null)
         {
             try
             {
-                return await _eHLogic.GetSkillsView(columnName);
+                return await _eHLogic.GetSkillsView(columnValue);
             }
             catch (Exception ex)
             {
                 return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
             }
-        }                                               
-              
+        }
+
         [HttpPost("SkillsJobopening/Add")]
         public async Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill([FromQuery] string jobopeningName, [FromQuery] string skillName)
         {
@@ -143,11 +143,11 @@ namespace EmploymentHelper
         }
 
         [HttpGet("VacancyConditions/Get")]
-        public async Task<ActionResult<IEnumerable<VacancyConditions>>> GetConditions([FromQuery] string columnName = null)
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> GetConditions([FromQuery] string columnValue = null)
         {
             try
             {
-                return await _eHLogic.GetAllConditions(columnName);
+                return await _eHLogic.GetAllConditions(columnValue);
             }
             catch (Exception ex)
             {
@@ -182,9 +182,22 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Contacts/Add")]//add view
-        public async Task<ActionResult<Contacts>> AddContact([FromQuery] Guid accountId, [FromQuery] string lastName, 
-            [FromQuery] string firstName, [FromQuery] bool gender, DateTime? birthDate, string middleName = null, 
+        [HttpGet("AllAccounts/Get")]
+        public async Task<ActionResult<IEnumerable<AllAccounts>>> GetContactsAccount([FromQuery] string columnValue = null)
+        {
+            try
+            {
+                return await _eHLogic.GetContactsView(columnValue);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpPost("AllAccounts/Add")]
+        public async Task<ActionResult<IEnumerable<AllAccounts>>> AddContact([FromQuery] Guid accountId, [FromQuery] string lastName,
+            [FromQuery] string firstName, [FromQuery] bool gender, DateTime? birthDate, string middleName = null,
             string commType = null, string commValue = null)
         {
             try
@@ -199,7 +212,7 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Communications/Add")]
-        public async Task<ActionResult<Communications>> AddCommunication([FromQuery] Guid contactId, [FromQuery] string commType, 
+        public async Task<ActionResult<Communications>> AddCommunication([FromQuery] Guid contactId, [FromQuery] string commType,
             [FromQuery] string commValue)
         {
             try

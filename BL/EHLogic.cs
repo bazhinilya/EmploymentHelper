@@ -1,4 +1,5 @@
-﻿using EmploymentHelper.Models;
+﻿using EmploymentHelper.Interface;
+using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -7,21 +8,25 @@ using System.Threading.Tasks;
 
 namespace EmploymentHelper.BL
 {
-    public class EHLogic /*: IEmploymentHelper*/
+    public class EHLogic : IEmploymentHelper
     {
         public EHLogic() { }
 
-        public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations(string columnName = null)
+        public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var specialization = db.Specializations.Where(s => s.Name == columnName || s.Code == columnName);
-            if (Guid.TryParse(columnName, out Guid id) && columnName != null)
+            var specialization = db.Specializations.Where(s => s.Name == columnValue || s.Code == columnValue);
+            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
             {
                 return db.Specializations.Where(s => s.Id == id).ToList();
             }
-            else if (specialization != null && columnName != null)
+            else if (specialization != null && columnValue != null)
             {
                 return specialization.ToList();
+            }
+            else if (columnValue != null)
+            {
+                throw new Exception("Error, invalid column value.");
             }
             return db.Specializations.ToList();
         }
@@ -43,17 +48,21 @@ namespace EmploymentHelper.BL
             return specialization.First();
         }
 
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings(string columnName = null)
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var jobopening = db.Jobopenings.Where(s => s.Name == columnName);
-            if (Guid.TryParse(columnName, out Guid id) && columnName != null)
+            var jobopening = db.Jobopenings.Where(s => s.Name == columnValue);
+            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
             {
                 return db.Jobopenings.Where(j => j.Id == id).ToList();
             }
-            else if (jobopening != null && columnName != null)
+            else if (jobopening != null && columnValue != null)
             {
                 return jobopening.ToList();
+            }
+            else if (columnValue != null)
+            {
+                throw new Exception("Error, invalid column value.");
             }
             return db.Jobopenings.ToList();
         }
@@ -149,48 +158,56 @@ namespace EmploymentHelper.BL
             return db.Jobopenings.ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts(string columnName = null)
+        public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var account = db.Accounts.Where(a => a.Name == columnName);
-            if (Guid.TryParse(columnName, out Guid id) && columnName != null)
+            var account = db.Accounts.Where(a => a.Name == columnValue);
+            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
             {
                 return db.Accounts.Where(a => a.Id == id).ToList();
             }
-            else if (account != null && columnName != null)
+            else if (account != null && columnValue != null)
             {
                 return account.ToList();
+            }
+            else if (columnValue != null)
+            {
+                throw new Exception("Error, invalid column value.");
             }
             return db.Accounts.ToList();
         }
 
-        public async Task<ActionResult<Accounts>> AddInn(string name, string inn)
-        {
-            await using var db = new VacancyContext();
-            var accounts = db.Accounts.Where(a => a.Name == name);
-            if (accounts != null && accounts.Count() == 1)
-            {
-                accounts.First().INN = inn;
-            }
-            else
-            {
-                throw new Exception("Uniqueness error, more than one account was found");
-            }
-            await db.SaveChangesAsync();
-            return accounts.First();
-        }
+        //public async Task<ActionResult<Accounts>> AddInn(string name, string inn)
+        //{
+        //    await using var db = new VacancyContext();
+        //    var accounts = db.Accounts.Where(a => a.Name == name);
+        //    if (accounts != null && accounts.Count() == 1)
+        //    {
+        //        accounts.First().INN = inn;
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Uniqueness error, more than one account was found");
+        //    }
+        //    await db.SaveChangesAsync();
+        //    return accounts.First();
+        //}
 
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsView(string columnName = null)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsView(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var skills = db.AllSkills.Where(s => s.LevelType == columnName || s.LevelName == columnName);
-            if (Guid.TryParse(columnName, out Guid id) && columnName != null)
+            var skills = db.AllSkills.Where(s => s.LevelType == columnValue || s.LevelName == columnValue);
+            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
             {
                 return db.AllSkills.Where(s => s.Id == id).ToList();
             }
-            else if (skills != null && columnName != null)
+            else if (skills != null && columnValue != null)
             {
                 return skills.ToList();
+            }
+            else if (columnValue != null)
+            {
+                throw new Exception("Error, invalid column value.");
             }
             return db.AllSkills.ToList();
         }
@@ -224,17 +241,21 @@ namespace EmploymentHelper.BL
             return db.SkillsJobopening.Where(j => j.IdJobopening == jobopening.First().Id).ToList();
         }
 
-        public async Task<ActionResult<IEnumerable<VacancyConditions>>> GetAllConditions(string columnName = null)
+        public async Task<ActionResult<IEnumerable<VacancyConditions>>> GetAllConditions(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var conditions = db.VacancyConditions.Where(c => c.ConditionType == columnName || c.ConditionValue == columnName);
-            if (Guid.TryParse(columnName, out Guid id) && columnName != null)
+            var conditions = db.VacancyConditions.Where(c => c.ConditionType == columnValue || c.ConditionValue == columnValue);
+            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
             {
                 return db.VacancyConditions.Where(c => c.Id == id || c.JobopeningId == id).ToList();
             }
-            else if (conditions != null && columnName != null)
+            else if (conditions != null && columnValue != null)
             {
                 return conditions.ToList();
+            }
+            else if (columnValue != null)
+            {
+                throw new Exception("Error, invalid column value.");
             }
             return db.VacancyConditions.ToList();
         }
@@ -280,7 +301,7 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteVacancyConditions(Guid? id, Guid? jobopeningId)
         {
             await using var db = new VacancyContext();
-            var conditions = db.VacancyConditions.Where(c => c.JobopeningId == jobopeningId); 
+            var conditions = db.VacancyConditions.Where(c => c.JobopeningId == jobopeningId);
 
             if (conditions != null)
             {
@@ -307,15 +328,32 @@ namespace EmploymentHelper.BL
             return db.VacancyConditions.ToList();
         }
 
-        //public async Task<ActionResult<IEnumerable<>>>
-
-        public async Task<ActionResult<Contacts>> AddContactAndCommunication(Guid accountId, string lastName, string firstName, 
-            bool gender, DateTime? birthDate, string middleName = null, string commType = null, string commValue = null) 
+        public async Task<ActionResult<IEnumerable<AllAccounts>>> GetContactsView(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var contact = db.Contacts.Where(c => c.AccountId == accountId 
+            var account = db.AllAccounts.Where(a => a.Name == columnValue || a.FullName == columnValue);
+            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            {
+                return db.AllAccounts.Where(a => a.Id == id || a.ContactId == id || a.CommunicationId == id).ToList();
+            }
+            else if (account != null && columnValue != null)
+            {
+                return db.AllAccounts.ToList();
+            }
+            else if (columnValue != null)
+            {
+                throw new Exception("Error, invalid column value.");
+            }
+            return db.AllAccounts.ToList();
+        }
+
+        public async Task<ActionResult<IEnumerable<AllAccounts>>> AddContactAndCommunication(Guid accountId, string lastName, string firstName,
+            bool gender, DateTime? birthDate, string middleName = null, string commType = null, string commValue = null)
+        {
+            await using var db = new VacancyContext();
+            var contact = db.Contacts.Where(c => c.AccountId == accountId
                                             && c.LastName == lastName && c.BirthDate == birthDate);
-            var communication = db.Communications.Where(c => c.AccountId == accountId 
+            var communication = db.Communications.Where(c => c.AccountId == accountId
                                                         && c.CommType == commType && c.CommValue == commValue);
             Guid contactId;
             if (contact == null || !contact.Any())
@@ -352,32 +390,38 @@ namespace EmploymentHelper.BL
                 throw new Exception("Uniqueness error, this contact or communication exists.");
             }
 
-            return contact.First();//view contacts/communications
+            return db.AllAccounts.Where(a => a.ContactId == contactId).ToList();
         }
 
-        public async Task<ActionResult<Communications>> AddCommunication(Guid contactId, string commType, string commValue)
-        {
-            await using var db = new VacancyContext();
-            var communication = db.Communications.Where(c => c.ContactId == contactId 
-                                                        && c.CommType == commType && c.CommValue == commValue);
-            var contact = db.Contacts.FirstOrDefault(c => c.Id == contactId);
-            if (communication == null || !communication.Any())
-            {
-                db.Add(new Communications
-                {
-                    Id = Guid.NewGuid(),
-                    CommType = commType,
-                    CommValue = commValue,
-                    AccountId = contact.AccountId,
-                    ContactId = contactId
-                });
-                await db.SaveChangesAsync();
-            }
-            else
-            {
-                throw new Exception("Uniqueness error, more than one communication value was found.");
-            }
-            return communication.First();
-        }
+        //public async Task<ActionResult<Communications>> AddCommunication(Guid contactId, string commType, string commValue)
+        //{
+        //    await using var db = new VacancyContext();
+        //    var communication = db.Communications.Where(c => c.ContactId == contactId
+        //                                                && c.CommType == commType && c.CommValue == commValue);
+        //    var contact = db.Contacts.FirstOrDefault(c => c.Id == contactId);
+        //    if (communication == null || !communication.Any())
+        //    {
+        //        db.Add(new Communications
+        //        {
+        //            Id = Guid.NewGuid(),
+        //            CommType = commType,
+        //            CommValue = commValue,
+        //            AccountId = contact.AccountId,
+        //            ContactId = contactId
+        //        });
+        //        await db.SaveChangesAsync();
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Uniqueness error, more than one communication value was found.");
+        //    }
+        //    return communication.First();
+        //}
+
+        //public async Task<ActionResult<IEnumerable<Communications>>> DeleteCommunications(Guid id, Guid contactId)
+        //{
+        //    await using var db = new VacancyContext();
+        //    return db.Communications.ToList();
+        //} 
     }
 }
