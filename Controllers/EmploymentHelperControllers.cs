@@ -102,19 +102,19 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Accounts/AddInn")]
-        public async Task<ActionResult<Accounts>> UpdateINNByName([FromQuery] string name, [FromQuery] string inn)
-        {
-            try
-            {
-                return await _eHLogic.AddInn(name, inn);
-            }
-            catch (Exception ex)
-            {
+        //[HttpPost("Accounts/AddInn")]
+        //public async Task<ActionResult<Accounts>> UpdateINNByName([FromQuery] string name, [FromQuery] string inn)
+        //{
+        //    try
+        //    {
+        //        return await _eHLogic.AddInn(name, inn);
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
+        //        return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+        //    }
+        //}
 
         [HttpGet("AllSkills/Get")]
         public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsJobopening([FromQuery] string columnValue = null)
@@ -211,18 +211,18 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpPost("Communications/Add")]
-        public async Task<ActionResult<Communications>> AddCommunication([FromQuery] Guid contactId, [FromQuery] string commType,
-            [FromQuery] string commValue)
-        {
-            try
-            {
-                return await _eHLogic.AddCommunication(contactId, commType, commValue);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
+        //[HttpPost("Communications/Add")]
+        //public async Task<ActionResult<Communications>> AddCommunication([FromQuery] Guid contactId, [FromQuery] string commType,
+        //    [FromQuery] string commValue)
+        //{
+        //    try
+        //    {
+        //        return await _eHLogic.AddCommunication(contactId, commType, commValue);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+        //    }
+        //}
     }
 }
