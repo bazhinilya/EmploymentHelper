@@ -161,7 +161,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddVacancyCondition(jobopeningName, conditionValue, conditionType);
+                return await _eHLogic.AddVacancyCondition(jobopeningName, conditionType, conditionValue);
             }
             catch (Exception ex)
             {

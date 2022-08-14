@@ -302,8 +302,8 @@ namespace EmploymentHelper.BL
                 db.VacancyConditions.Add(new VacancyConditions
                 {
                     Id = Guid.NewGuid(),
-                    ConditionValue = conditionValue,
                     ConditionType = conditionType,
+                    ConditionValue = conditionValue,
                     JobopeningId = jobopeningId,
                 });
             }
