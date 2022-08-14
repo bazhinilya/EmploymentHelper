@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
 namespace EmploymentHelper
@@ -17,14 +16,9 @@ namespace EmploymentHelper
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration configuration)
         {
-            //if (env.IsDevelopment())
-            //{
-            
-            
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(swgUi => swgUi.SwaggerEndpoint("/swagger/v1/swagger.json", "EmploymentHelper v1"));
-            //}
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(swgUi => swgUi.SwaggerEndpoint("/swagger/v1/swagger.json", "EmploymentHelper v1"));
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
