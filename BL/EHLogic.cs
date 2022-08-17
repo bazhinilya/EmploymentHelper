@@ -5,13 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace EmploymentHelper.BL
 {
     public class EHLogic : IEmploymentHelper
     {
         public EHLogic() { }
+
+        private readonly Type _vacancyConditionsType = typeof(VacancyConditions);
+        private readonly Type _communicationsType = typeof(Communications);
 
         public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations(string columnValue = null)
         {
@@ -319,20 +321,21 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var vacancyCondition = db.VacancyConditions.Where(vc => vc.Id == id);
-            if (vacancyCondition != null)
+            if (vacancyCondition != null && !vacancyCondition.Any())
             {
-                switch (columnName)
+                foreach (var item in _vacancyConditionsType.GetProperties())
                 {
-                    case "ConditionValue": vacancyCondition.First().ConditionValue = columnValue; 
-                        break;
-                    case "ConditionType": vacancyCondition.First().ConditionType = columnValue;
-                        break;
-                    case "JobopeningId": vacancyCondition.First().JobopeningId = Guid.Parse(columnValue);
-                        break;
-                    default: throw new Exception("Error, the column name is incorrect");
+                    if (item.Name == columnName)
+                    {
+                        item.SetValue(vacancyCondition.First(), columnValue);
+                    }
+                    else
+                    {
+                        throw new Exception("Error, the column name is incorrect");
+                    }
                 }
-                if (!db.VacancyConditions.Where(vc => vc.ConditionValue == columnValue 
-                                                && vc.ConditionType == vacancyCondition.First().ConditionType)
+                if (!db.VacancyConditions.Where(vc => vc.JobopeningId == vacancyCondition.First().JobopeningId
+                                                    && vc.ConditionType == vacancyCondition.First().ConditionType)
                                          .Any())
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
@@ -511,21 +514,22 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var communication = db.Communications.Where(c => c.Id == id);
-            if (communication != null)
+            if (communication != null && !communication.Any())
             {
-                switch (columnName)
+                foreach (var item in _communicationsType.GetProperties())
                 {
-                    case "CommType": communication.First().CommType = columnValue;
-                        break;
-                    case "CommValue": communication.First().CommValue = columnValue;
-                        break;
-                    case "AccountId": communication.First().AccountId = Guid.Parse(columnValue);
-                        break;
-                    case "ContactId": communication.First().ContactId = Guid.Parse(columnValue);
-                        break;
-                    default: throw new Exception("Error, the column name is incorrect");
+                    if (item.Name == columnName)
+                    {
+                        item.SetValue(communication.First(), columnValue);
+                    }
+                    else
+                    {
+                        throw new Exception("Error, the column name is incorrect");
+                    }
                 }
-                if (!db.Communications.Where(c => c.CommType == columnValue && c.ContactId == communication.First().ContactId).Any())
+                if (!db.Communications.Where(c => c.CommType == communication.First().CommType 
+                                                && c.ContactId == communication.First().ContactId)
+                                      .Any())
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
