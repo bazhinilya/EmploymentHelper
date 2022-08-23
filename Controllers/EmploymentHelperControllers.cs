@@ -78,6 +78,20 @@ namespace EmploymentHelper
             }
         }
 
+        [HttpPost("Communications/Add")]
+        public async Task<ActionResult<Communications>> AddCommunication([FromQuery] string accountColumnValue, 
+            [FromQuery] string commType, [FromQuery] string commValue, [FromQuery] string contactColumnValue)
+        {
+            try
+            {
+                return await _eHLogic.AddCommunication(accountColumnValue, commType, commValue, contactColumnValue);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
         [HttpPost("Communications/Update")]
         public async Task<ActionResult<Communications>> EditCommunication([FromQuery] Guid id, [FromQuery] string columnName,
             [FromQuery] string columnValue)
@@ -246,12 +260,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("VacancyConditions/Add")]
-        public async Task<ActionResult<VacancyConditions>> AddVacancyCondition([FromQuery] string jobopeningName,
+        public async Task<ActionResult<VacancyConditions>> AddVacancyCondition([FromQuery] string jobopeningColumnValue,
             [FromQuery] string conditionType, [FromQuery] string conditionValue)
         {
             try
             {
-                return await _eHLogic.AddVacancyCondition(jobopeningName, conditionType, conditionValue);
+                return await _eHLogic.AddVacancyCondition(jobopeningColumnValue, conditionType, conditionValue);
             }
             catch (Exception ex)
             {
