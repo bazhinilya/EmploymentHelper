@@ -43,7 +43,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var account = db.Accounts.Where(a => a.Name == name || a.INN == inn);
-            if (account == null && account.Count() == 1)
+            if (account == null || !account.Any())
             {
                 db.Accounts.Add(new Accounts { Id = Guid.NewGuid(), Name = name, INN = inn });
             }
@@ -122,7 +122,7 @@ namespace EmploymentHelper.BL
                 {
                     throw new Exception("Error, the column name is incorrect");
                 }
-                else if (db.Communications.Where(c => c.CommType == communication.First().CommType 
+                else if (db.Communications.Where(c => c.CommType == communication.First().CommType
                                             && c.ContactId == communication.First().ContactId).Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
@@ -193,7 +193,7 @@ namespace EmploymentHelper.BL
                 {
                     throw new Exception("Error, the column name is incorrect");
                 }
-                else if (db.Contacts.Where(c => c.AccountId == contact.First().AccountId 
+                else if (db.Contacts.Where(c => c.AccountId == contact.First().AccountId
                                         && (c.FullName == contact.First().FullName || c.BirthDate == contact.First().BirthDate))
                                .Count() != 1)
                 {
@@ -245,7 +245,7 @@ namespace EmploymentHelper.BL
                 {
                     throw new Exception("Error, the column name is incorrect");
                 }
-                else if (db.Jobopenings.Where(j => j.AccountId == jobopening.First().AccountId 
+                else if (db.Jobopenings.Where(j => j.AccountId == jobopening.First().AccountId
                                                 && j.Name == jobopening.First().Name)
                                        .Count() != 1)
                 {
@@ -312,9 +312,9 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<Specializations>> AddSpecialization(string name, string code)
         {
             await using var db = new VacancyContext();
-            var specialization = db.Specializations.Where(s => s.Name == name);
+            var specialization = db.Specializations.Where(s => s.Name == name || s.Code == code);
 
-            if (specialization == null || specialization.Count() == 1)
+            if (specialization == null || !specialization.Any())
             {
                 db.Specializations.Add(new Specializations { Id = Guid.NewGuid(), Name = name, Code = code });
             }
@@ -377,6 +377,31 @@ namespace EmploymentHelper.BL
             }
             return db.VacancyConditions.ToList();
         }
+        public async Task<ActionResult<VacancyConditions>> AddVacancyCondition(string jobopeningName, string conditionType,
+            string conditionValue)
+        {
+            await using var db = new VacancyContext();
+            var jobopening = db.Jobopenings.Where(j => j.Id == Guid.Parse(jobopeningName) || j.Name == jobopeningName);
+            var vacancyCondition = db.VacancyConditions.Where(vc => vc.ConditionType == conditionType
+                                                                && vc.JobopeningId == jobopening.First().Id);
+            if (jobopening != null && jobopening.Count() == 1 && (vacancyCondition == null || !vacancyCondition.Any()))
+            {
+                db.VacancyConditions.Add(new VacancyConditions
+                {
+                    Id = Guid.NewGuid(),
+                    ConditionType = conditionType,
+                    ConditionValue = conditionValue,
+                    JobopeningId = jobopening.First().Id
+                });
+            }
+            else
+            {
+                throw new Exception("Uniqueness error. This vacancy condition already exists.");
+            }
+            await db.SaveChangesAsync();
+            return db.VacancyConditions.FirstOrDefault(vc => vc.JobopeningId == jobopening.First().Id
+                                                        && vc.ConditionType == conditionType);
+        }
         public async Task<ActionResult<VacancyConditions>> EditVacancyCondition(Guid id, string columnName, string columnValue)
         {
             await using var db = new VacancyContext();
@@ -395,7 +420,7 @@ namespace EmploymentHelper.BL
                 {
                     throw new Exception("Error, the column name is incorrect");
                 }
-                else if (db.VacancyConditions.Where(vc => vc.JobopeningId == vacancyCondition.First().JobopeningId 
+                else if (db.VacancyConditions.Where(vc => vc.JobopeningId == vacancyCondition.First().JobopeningId
                                                     && vc.ConditionType == vacancyCondition.First().ConditionType)
                                              .Count() != 1)
                 {
@@ -449,18 +474,18 @@ namespace EmploymentHelper.BL
             }
             return db.VacancyPlaces.ToList();
         }
-        public async Task<ActionResult<VacancyPlaces>> AddVacancyPlace(string name)
+        public async Task<ActionResult<VacancyPlaces>> AddVacancyPlace(string name, string code)
         {
             await using var db = new VacancyContext();
-            var vacancyPlace = db.VacancyPlaces.Where(vc => vc.Name == name);
-            if (vacancyPlace == null)
+            var vacancyPlace = db.VacancyPlaces.Where(vc => vc.Name == name || vc.Code == code);
+            if (vacancyPlace == null || !vacancyPlace.Any())
             {
-                db.VacancyPlaces.Add(new VacancyPlaces { Id = Guid.NewGuid(), Name = name });
+                db.VacancyPlaces.Add(new VacancyPlaces { Id = Guid.NewGuid(), Name = name, Code = code });
                 await db.SaveChangesAsync();
             }
             else
             {
-                throw new Exception("Uniqueness error. This place already exists.");
+                throw new Exception("Uniqueness error. This vacancy place already exists.");
             }
             return vacancyPlace.First();
         }
@@ -482,7 +507,7 @@ namespace EmploymentHelper.BL
                 {
                     throw new Exception("Error, the column name is incorrect");
                 }
-                else if (db.VacancyPlaces.Where(vp => vp.Id == vacancyPlace.First().Id 
+                else if (db.VacancyPlaces.Where(vp => vp.Id == vacancyPlace.First().Id
                                                 && vp.Name == vacancyPlace.First().Name)
                                          .Count() != 1)
                 {
@@ -520,43 +545,7 @@ namespace EmploymentHelper.BL
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public async Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName,
-            string conditionType, string conditionValue)
-        {
-            await using var db = new VacancyContext();
-            var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
-
-            Guid jobopeningId;
-            if (jobopening != null && jobopening.Count() == 1)
-            {
-                jobopeningId = jobopening.First().Id;
-            }
-            else
-            {
-                throw new Exception("Uniqueness error, more than one vacancy was found.");
-            }
-
-            var vacancyConditions = db.VacancyConditions.Where(vc => vc.JobopeningId == jobopeningId
-                                                                && vc.ConditionType == conditionType
-                                                                && vc.ConditionValue == conditionValue);
-
-            if (jobopening != null && (vacancyConditions == null || vacancyConditions.Count() == 1))
-            {
-                db.VacancyConditions.Add(new VacancyConditions
-                {
-                    Id = Guid.NewGuid(),
-                    ConditionType = conditionType,
-                    ConditionValue = conditionValue,
-                    JobopeningId = jobopeningId,
-                });
-            }
-            else
-            {
-                throw new Exception("Error");
-            }
-            await db.SaveChangesAsync();
-            return db.VacancyConditions.Where(vc => vc.JobopeningId == jobopeningId).ToList();
-        }//edit exception and method
+        
 
         public async Task<ActionResult<Communications>> AddCommunication(Guid contactId, string commType, string commValue)
         {
@@ -723,8 +712,8 @@ namespace EmploymentHelper.BL
         //    return db.SkillsJobopening.Where(j => j.IdJobopening == jobopening.First().Id).ToList();
         //}
 
-        
 
-        
+
+
     }
 }

@@ -29,11 +29,12 @@ namespace EmploymentHelper.Interface
         Task<ActionResult<Specializations>> EditSpecialization(Guid id, string columnName, string columnValue);
 
         Task<ActionResult<IEnumerable<VacancyConditions>>> GetVacancyConditions(string columnValue = null);
+        Task<ActionResult<VacancyConditions>> AddVacancyCondition(string jobopeningName, string conditionType, string conditionValue);
         Task<ActionResult<VacancyConditions>> EditVacancyCondition(Guid id, string columnName, string columnValue);
         Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteVacancyConditions(Guid? id);
 
         Task<ActionResult<IEnumerable<VacancyPlaces>>> GetVacancyPlaces(string columnValue = null);
-        Task<ActionResult<VacancyPlaces>> AddVacancyPlace(string name);
+        Task<ActionResult<VacancyPlaces>> AddVacancyPlace(string name, string code);
         Task<ActionResult<VacancyPlaces>> EditVacancyPlace(Guid id, string columnName, string columnValue);
         Task<ActionResult<IEnumerable<VacancyPlaces>>> DeleteVacancyPlaces(Guid? id);
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +43,6 @@ namespace EmploymentHelper.Interface
             string specializationCode, string accountName, string link);
         Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsView(string columnValue = null);
         //Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill(string jobopeningName, string skillName);
-        Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName,
-            string conditionType, string conditionValue);
+        
     }
 }
