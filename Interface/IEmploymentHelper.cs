@@ -44,8 +44,5 @@ namespace EmploymentHelper.Interface
         //Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill(string jobopeningName, string skillName);
         Task<ActionResult<IEnumerable<VacancyConditions>>> AddVacancyCondition(string jobopeningName,
             string conditionType, string conditionValue);
-        Task<ActionResult<IEnumerable<AllAccounts>>> GetContactsView(string columnValue = null);
-        Task<ActionResult<IEnumerable<AllAccounts>>> AddContactAndCommunication(Guid accountId, string lastName, string firstName,
-            bool gender, DateTime? birthDate, string middleName = null, string commType = null, string commValue = null);
     }
 }

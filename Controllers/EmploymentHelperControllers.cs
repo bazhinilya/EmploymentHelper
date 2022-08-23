@@ -388,60 +388,6 @@ namespace EmploymentHelper
         }
 
 
-        [HttpPost("SkillsJobopening/Add")]
-        public async Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill([FromQuery] string jobopeningName, [FromQuery] string skillName)
-        {
-            try
-            {
-                return await _eHLogic.AddSkill(jobopeningName, skillName);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
         
-        [HttpGet("AllAccounts/Get")]
-        public async Task<ActionResult<IEnumerable<AllAccounts>>> GetContactsAccount([FromQuery] string columnValue = null)
-        {
-            try
-            {
-                return await _eHLogic.GetContactsView(columnValue);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpPost("AllAccounts/Add")]
-        public async Task<ActionResult<IEnumerable<AllAccounts>>> AddContact([FromQuery] Guid accountId, [FromQuery] string lastName,
-            [FromQuery] string firstName, [FromQuery] bool gender, DateTime? birthDate, string middleName = null,
-            string commType = null, string commValue = null)
-        {
-            try
-            {
-                return await _eHLogic.AddContactAndCommunication(accountId, lastName, firstName,
-            gender, birthDate, middleName, commType, commValue);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpPost("AllAccounts/Update")]
-        public async Task<ActionResult<AllAccounts>> UpdateContact(Guid id, string columnName, string columnValue)
-        {
-            try
-            {
-                return await _eHLogic.EditAllAccounts(id, columnName, columnValue);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
     }
 }

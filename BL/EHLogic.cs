@@ -43,7 +43,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var account = db.Accounts.Where(a => a.Name == name || a.INN == inn);
-            if (account == null && !account.Any())
+            if (account == null && account.Count() == 1)
             {
                 db.Accounts.Add(new Accounts { Id = Guid.NewGuid(), Name = name, INN = inn });
             }
@@ -58,21 +58,21 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var account = db.Accounts.Where(a => a.Id == id);
-            if (account != null && !account.Any())
+            if (account != null && account.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _accountsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(account.First(), columnValue);
                     }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
-                    }
                 }
-                if (!db.Accounts.Where(a => a.Name == account.First().Name || a.INN == account.First().INN)
-                                        .Any())
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.Accounts.Where(a => a.Name == account.First().Name || a.INN == account.First().INN).Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -108,22 +108,22 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var communication = db.Communications.Where(c => c.Id == id);
-            if (communication != null && !communication.Any())
+            if (communication != null && communication.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _communicationsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(communication.First(), columnValue);
                     }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
-                    }
                 }
-                if (!db.Communications.Where(c => c.CommType == communication.First().CommType
-                                                && c.ContactId == communication.First().ContactId)
-                                      .Any())
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.Communications.Where(c => c.CommType == communication.First().CommType 
+                                            && c.ContactId == communication.First().ContactId).Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -179,22 +179,23 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var contact = db.Contacts.Where(c => c.Id == id);
-            if (contact != null && !contact.Any())
+            if (contact != null && contact.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _contactsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(contact.First(), columnValue);
                     }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
-                    }
                 }
-                if (!db.Contacts.Where(c => c.AccountId == contact.First().AccountId
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.Contacts.Where(c => c.AccountId == contact.First().AccountId 
                                         && (c.FullName == contact.First().FullName || c.BirthDate == contact.First().BirthDate))
-                                        .Any())
+                               .Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -230,21 +231,23 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var jobopening = db.Jobopenings.Where(j => j.Id == id);
-            if (jobopening != null && !jobopening.Any())
+            if (jobopening != null && jobopening.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _jobopeningsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(jobopening.First(), columnValue);
                     }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
-                    }
                 }
-                if (!db.Jobopenings.Where(j => j.AccountId == jobopening.First().AccountId && j.Name == jobopening.First().Name)
-                                       .Any())
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.Jobopenings.Where(j => j.AccountId == jobopening.First().AccountId 
+                                                && j.Name == jobopening.First().Name)
+                                       .Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -261,21 +264,21 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var skill = db.Skills.Where(s => s.Id == id);
-            if (skill != null && !skill.Any())
+            if (skill != null && skill.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _skillsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(skill.First(), columnValue);
                     }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
-                    }
                 }
-                if (!db.Skills.Where(s => s.Id == skill.First().Id && s.Name == skill.First().Name)
-                                       .Any())
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.Skills.Where(s => s.Id == skill.First().Id && s.Name == skill.First().Name).Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -311,7 +314,7 @@ namespace EmploymentHelper.BL
             await using var db = new VacancyContext();
             var specialization = db.Specializations.Where(s => s.Name == name);
 
-            if (specialization == null || !specialization.Any())
+            if (specialization == null || specialization.Count() == 1)
             {
                 db.Specializations.Add(new Specializations { Id = Guid.NewGuid(), Name = name, Code = code });
             }
@@ -326,22 +329,24 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var specialization = db.Specializations.Where(s => s.Id == id);
-            if (specialization != null && !specialization.Any())
+            if (specialization != null && specialization.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _specializationsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(specialization.First(), columnValue);
-                    }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
+                        isDirty++;
                     }
                 }
-                if (!db.Specializations.Where(s => s.Name == specialization.First().Name
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.Specializations.Where(s => s.Name == specialization.First().Name
                                                 || s.Code == specialization.First().Code)
-                                       .Any())
+                                           .Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -376,22 +381,23 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var vacancyCondition = db.VacancyConditions.Where(vc => vc.Id == id);
-            if (vacancyCondition != null && !vacancyCondition.Any())
+            if (vacancyCondition != null && vacancyCondition.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _vacancyConditionsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(vacancyCondition.First(), columnValue);
                     }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
-                    }
                 }
-                if (!db.VacancyConditions.Where(vc => vc.JobopeningId == vacancyCondition.First().JobopeningId
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.VacancyConditions.Where(vc => vc.JobopeningId == vacancyCondition.First().JobopeningId 
                                                     && vc.ConditionType == vacancyCondition.First().ConditionType)
-                                         .Any())
+                                             .Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -462,21 +468,23 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var vacancyPlace = db.VacancyPlaces.Where(vp => vp.Id == id);
-            if (vacancyPlace != null && !vacancyPlace.Any())
+            if (vacancyPlace != null && vacancyPlace.Count() == 1)
             {
+                int isDirty = 0;
                 foreach (var item in _vacancyPlacesType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
                         item.SetValue(vacancyPlace.First(), columnValue);
                     }
-                    else
-                    {
-                        throw new Exception("Error, the column name is incorrect");
-                    }
                 }
-                if (!db.VacancyPlaces.Where(vp => vp.Id == vacancyPlace.First().Id && vp.Name == vacancyPlace.First().Name)
-                                       .Any())
+                if (isDirty == 0)
+                {
+                    throw new Exception("Error, the column name is incorrect");
+                }
+                else if (db.VacancyPlaces.Where(vp => vp.Id == vacancyPlace.First().Id 
+                                                && vp.Name == vacancyPlace.First().Name)
+                                         .Count() != 1)
                 {
                     throw new Exception("Error, you are trying to specify already existing data.");
                 }
@@ -519,7 +527,7 @@ namespace EmploymentHelper.BL
             var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
 
             Guid jobopeningId;
-            if (jobopening != null && !jobopening.Any())
+            if (jobopening != null && jobopening.Count() == 1)
             {
                 jobopeningId = jobopening.First().Id;
             }
@@ -532,7 +540,7 @@ namespace EmploymentHelper.BL
                                                                 && vc.ConditionType == conditionType
                                                                 && vc.ConditionValue == conditionValue);
 
-            if (jobopening != null && (vacancyConditions == null || !vacancyConditions.Any()))
+            if (jobopening != null && (vacancyConditions == null || vacancyConditions.Count() == 1))
             {
                 db.VacancyConditions.Add(new VacancyConditions
                 {
@@ -556,7 +564,7 @@ namespace EmploymentHelper.BL
             var communication = db.Communications.Where(c => c.ContactId == contactId
                                                         && c.CommType == commType && c.CommValue == commValue);
             var contact = db.Contacts.FirstOrDefault(c => c.Id == contactId);
-            if (communication == null || !communication.Any())
+            if (communication == null || communication.Count() == 1)
             {
                 db.Add(new Communications
                 {
@@ -636,36 +644,36 @@ namespace EmploymentHelper.BL
             return jobopening.First();
         }
 
-        //public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
-        //{
-        //    await using var db = new VacancyContext();
-        //    var vacancyConditions = db.VacancyConditions.Where(vc => vc.JobopeningId == idFromJobopenings);
-        //    var jobopening = db.Jobopenings.FirstOrDefault(j => j.Id == idFromJobopenings);
-        //    var account = db.Accounts.FirstOrDefault(a => a.Id == jobopening.AccountId);
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
+        {
+            await using var db = new VacancyContext();
+            var vacancyConditions = db.VacancyConditions.Where(vc => vc.JobopeningId == idFromJobopenings);
+            var jobopening = db.Jobopenings.FirstOrDefault(j => j.Id == idFromJobopenings);
+            var account = db.Accounts.FirstOrDefault(a => a.Id == jobopening.AccountId);
 
-        //    if (vacancyConditions != null)
-        //    {
-        //        foreach (var vacancyCondition in vacancyConditions)
-        //        {
-        //            db.VacancyConditions.Remove(vacancyCondition);
-        //        }
-        //        await db.SaveChangesAsync();
-        //    }
+            if (vacancyConditions != null)
+            {
+                foreach (var vacancyCondition in vacancyConditions)
+                {
+                    db.VacancyConditions.Remove(vacancyCondition);
+                }
+                await db.SaveChangesAsync();
+            }
 
-        //    if (jobopening != null)
-        //    {
-        //        db.Jobopenings.Remove(jobopening);
-        //        await db.SaveChangesAsync();
-        //    }
+            if (jobopening != null)
+            {
+                db.Jobopenings.Remove(jobopening);
+                await db.SaveChangesAsync();
+            }
 
-        //    if (account != null)
-        //    {
-        //        db.Accounts.Remove(account);
-        //        await db.SaveChangesAsync();
-        //    }
+            if (account != null)
+            {
+                db.Accounts.Remove(account);
+                await db.SaveChangesAsync();
+            }
 
-        //    return db.Jobopenings.ToList();
-        //}
+            return db.Jobopenings.ToList();
+        }
 
         public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsView(string columnValue = null)
         {
@@ -715,70 +723,7 @@ namespace EmploymentHelper.BL
         //    return db.SkillsJobopening.Where(j => j.IdJobopening == jobopening.First().Id).ToList();
         //}
 
-        public async Task<ActionResult<IEnumerable<AllAccounts>>> GetContactsView(string columnValue = null)
-        {
-            await using var db = new VacancyContext();
-            var account = db.AllAccounts.Where(a => a.Name == columnValue || a.FullName == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
-            {
-                return db.AllAccounts.Where(a => a.Id == id || a.ContactId == id || a.CommunicationId == id).ToList();
-            }
-            else if (account != null && columnValue != null)
-            {
-                return db.AllAccounts.ToList();
-            }
-            else if (columnValue != null)
-            {
-                throw new Exception("Error, invalid column value.");
-            }
-            return db.AllAccounts.ToList();
-        }
-
-        public async Task<ActionResult<IEnumerable<AllAccounts>>> AddContactAndCommunication(Guid accountId, string lastName, string firstName,
-            bool gender, DateTime? birthDate, string middleName = null, string commType = null, string commValue = null)
-        {
-            await using var db = new VacancyContext();
-            var contact = db.Contacts.Where(c => c.AccountId == accountId
-                                            && c.LastName == lastName && c.BirthDate == birthDate);
-            var communication = db.Communications.Where(c => c.AccountId == accountId
-                                                        && c.CommType == commType && c.CommValue == commValue);
-            Guid contactId;
-            if (contact == null || !contact.Any())
-            {
-                contactId = Guid.NewGuid();
-                db.Contacts.Add(new Contacts
-                {
-                    AccountId = accountId,
-                    LastName = lastName,
-                    FirstName = firstName,
-                    MiddleName = middleName,
-                    FullName = middleName == null ? $"{lastName} {firstName}" : $"{lastName} {firstName} {middleName}",
-                    BirthDate = birthDate,
-                    Gender = gender,
-                    Id = contactId
-                });
-                await db.SaveChangesAsync();
-
-                if ((communication == null || !communication.Any()) && (commType != null && commValue != null))
-                {
-                    db.Communications.Add(new Communications
-                    {
-                        AccountId = accountId,
-                        CommType = commType,
-                        CommValue = commValue,
-                        ContactId = contactId,
-                        Id = contactId
-                    });
-                    await db.SaveChangesAsync();
-                }
-            }
-            else
-            {
-                throw new Exception("Uniqueness error, this contact or communication exists.");
-            }
-
-            return db.AllAccounts.Where(a => a.ContactId == contactId).ToList();
-        }
+        
 
         
     }
