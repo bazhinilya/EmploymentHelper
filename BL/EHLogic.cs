@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.BL
@@ -43,7 +44,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var account = db.Accounts.Where(a => a.Name == name || a.INN == inn);
-            if (account == null || !account.Any())
+            if (account.Count() == 0)
             {
                 db.Accounts.Add(new Accounts { Id = Guid.NewGuid(), Name = name, INN = inn });
             }
@@ -58,7 +59,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var account = db.Accounts.Where(a => a.Id == id);
-            if (account != null && account.Count() == 1)
+            if (account.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _accountsType.GetProperties())
@@ -108,12 +109,10 @@ namespace EmploymentHelper.BL
             string contactColumnValue)
         {
             await using var db = new VacancyContext();
-            var account = db.Accounts.Where(a => a.Id == Guid.Parse(accountColumnValue) || a.Name == accountColumnValue
-                                            || a.INN == accountColumnValue);
-            var contact = db.Contacts.Where(c => c.Id == Guid.Parse(contactColumnValue) || c.FullName == accountColumnValue);
+            var account = db.Accounts.Where(a => a.Name == accountColumnValue || a.INN == accountColumnValue);
+            var contact = db.Contacts.Where(c => c.FullName == accountColumnValue);
             var communication = db.Communications.Where(c => c.CommType == commType && c.ContactId == contact.First().Id);
-            if (account.Count() == 1 && contact.Count() == 1
-                && (communication == null || !communication.Any()))
+            if (account.Count() == 1 && contact.Count() == 1 && communication.Count() == 0)
             {
                 db.Communications.Add(new Communications
                 {
@@ -134,7 +133,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var communication = db.Communications.Where(c => c.Id == id);
-            if (communication != null && communication.Count() == 1)
+            if (communication.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _communicationsType.GetProperties())
@@ -208,12 +207,12 @@ namespace EmploymentHelper.BL
             var account = db.Accounts.Where(a => a.Name == accountName);
             var contact = db.Contacts.Where(c => c.AccountId == account.First().Id && c.FirstName == firstName 
                                             && c.LastName == lastName && c.Gender == gender && c.BirthDate == birthDate);
-            if (account == null || !account.Any())
+            if (account.Count() == 0)
             {
                 db.Accounts.Add(new Accounts { Id = Guid.NewGuid(), Name = accountName });
                 await db.SaveChangesAsync();
             }
-            if (account.Count() == 1 && (contact == null || !contact.Any()))
+            if (account.Count() == 1 && contact.Count() == 0)
             {
                 db.Contacts.Add(new Contacts
                 {
@@ -238,7 +237,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var contact = db.Contacts.Where(c => c.Id == id);
-            if (contact != null && contact.Count() == 1)
+            if (contact.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _contactsType.GetProperties())
@@ -286,32 +285,47 @@ namespace EmploymentHelper.BL
             }
             return db.Jobopenings.ToList();
         }
-        public async Task<ActionResult<Jobopenings>> AddJobopening(string vacancyPlaceColumnValue, string name, string link,
-            string accountName)
+        public async Task<ActionResult<Jobopenings>> AddJobopening(string specializationColumnValue, string vacancyPlaceColumnValue, 
+            string name, string link, string accountName)
         {
             await using var db = new VacancyContext();
-            var specialization = db.Specializations.Where(s => s.Id == Guid.Parse(vacancyPlaceColumnValue) 
-                                                            || s.Name == vacancyPlaceColumnValue
-                                                            || s.Code == vacancyPlaceColumnValue);
-            var jobopening = db.Jobopenings.Where(j => (j.Name == name || j.Link == link)
-                                                    && j.SpecializationId == specialization.First().Id);
+            var specialization = db.Specializations.Where(s => s.Name == specializationColumnValue
+                                                            || s.Code == specializationColumnValue);
+            var vacancyPlace = db.VacancyPlaces.Where(s => s.Name == vacancyPlaceColumnValue || s.Code == vacancyPlaceColumnValue);
+            var jobopening = db.Jobopenings.Where(j => j.Name == name && j.Link == link);
             var account = db.Accounts.Where(a => a.Name == accountName);
-            if (account == null || !account.Any())
+            if (account == null || account.Count() == 0)
             {
                 db.Accounts.Add(new Accounts { Id = Guid.NewGuid(), Name = accountName });
                 await db.SaveChangesAsync();
             }
-            if (account.Count() == 1 && specialization.Count() == 1
-                && (jobopening == null || !jobopening.Any()))
+            if (account.Count() == 1 && vacancyPlace.Count() == 1 && jobopening.Count() == 0)
             {
+                Guid jobopeningId = Guid.NewGuid();
                 db.Jobopenings.Add(new Jobopenings
                 {
-                    Id = Guid.NewGuid(),
+                    Id = jobopeningId,
                     Name = name,
                     Link = link,
                     SpecializationId = specialization.First().Id,
                     AccountId = account.First().Id
                 });
+
+                var jobopeningVacancyPlace = db.JobopeningsVacancyPlaces.Where(jvp => jvp.VacancyPlaceId == vacancyPlace.First().Id
+                                                                                && jvp.JobopeningId == jobopeningId);
+                if (jobopeningVacancyPlace.Count() == 0)
+                {
+                    db.JobopeningsVacancyPlaces.Add(new JobopeningsVacancyPlaces 
+                    { 
+                        Id = Guid.NewGuid(), 
+                        JobopeningId = jobopeningId, 
+                        VacancyPlaceId = vacancyPlace.First().Id
+                    });
+                }
+                else
+                {
+                    throw new Exception("Link error. Their number exceeds the allowed value.");
+                }
             }
             else
             {
@@ -324,7 +338,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var jobopening = db.Jobopenings.Where(j => j.Id == id);
-            if (jobopening != null && jobopening.Count() == 1)
+            if (jobopening.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _jobopeningsType.GetProperties())
@@ -353,11 +367,39 @@ namespace EmploymentHelper.BL
             return jobopening.First();
         }
 
+        public async Task<ActionResult<Skills>> AddSkill(string jobopeningColumnValue, string name)
+        {
+            await using var db = new VacancyContext();
+            var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningColumnValue);
+            var jobopeningSkill = db.JobopeningsSkills.Where(js => js.JobopeningId == jobopening.First().Id);
+            var skill = db.Skills.Where(s => s.Name == name);
+            if (jobopeningSkill.Count() == 0)
+            {
+                db.JobopeningsSkills.Add(new JobopeningsSkills
+                {
+                    Id = Guid.NewGuid(),
+                    JobopeningId = jobopening.First().Id,
+                    SkillId = Guid.NewGuid()
+                });
+                await db.SaveChangesAsync();
+            }
+            if (jobopening.Count() == 1 && skill.Count() == 0)
+            {
+                db.Skills.Add(new Skills { Id = jobopeningSkill.First().SkillId, Name = name });
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("Uniqueness error. This jobopening already exists.");
+            }
+            await db.SaveChangesAsync();
+            return skill.First();
+        }
         public async Task<ActionResult<Skills>> EditSkill(Guid id, string columnName, string columnValue)
         {
             await using var db = new VacancyContext();
             var skill = db.Skills.Where(s => s.Id == id);
-            if (skill != null && skill.Count() == 1)
+            if (skill.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _skillsType.GetProperties())
@@ -407,7 +449,7 @@ namespace EmploymentHelper.BL
             await using var db = new VacancyContext();
             var specialization = db.Specializations.Where(s => s.Name == name || s.Code == code);
 
-            if (specialization == null || !specialization.Any())
+            if (specialization.Count() == 0)
             {
                 db.Specializations.Add(new Specializations { Id = Guid.NewGuid(), Name = name, Code = code });
             }
@@ -422,7 +464,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var specialization = db.Specializations.Where(s => s.Id == id);
-            if (specialization != null && specialization.Count() == 1)
+            if (specialization.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _specializationsType.GetProperties())
@@ -477,7 +519,7 @@ namespace EmploymentHelper.BL
             var jobopening = db.Jobopenings.Where(j => j.Id == Guid.Parse(jobopeningColumnValue) || j.Name == jobopeningColumnValue);
             var vacancyCondition = db.VacancyConditions.Where(vc => vc.ConditionType == conditionType
                                                                 && vc.JobopeningId == jobopening.First().Id);
-            if (jobopening.Count() == 1 && (vacancyCondition == null || !vacancyCondition.Any()))
+            if (jobopening.Count() == 1 && vacancyCondition.Count() == 0)
             {
                 db.VacancyConditions.Add(new VacancyConditions
                 {
@@ -499,7 +541,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var vacancyCondition = db.VacancyConditions.Where(vc => vc.Id == id);
-            if (vacancyCondition != null && vacancyCondition.Count() == 1)
+            if (vacancyCondition.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _vacancyConditionsType.GetProperties())
@@ -571,7 +613,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var vacancyPlace = db.VacancyPlaces.Where(vc => vc.Name == name || vc.Code == code);
-            if (vacancyPlace == null || !vacancyPlace.Any())
+            if (vacancyPlace.Count() == 0)
             {
                 db.VacancyPlaces.Add(new VacancyPlaces { Id = Guid.NewGuid(), Name = name, Code = code });
                 await db.SaveChangesAsync();
@@ -586,7 +628,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var vacancyPlace = db.VacancyPlaces.Where(vp => vp.Id == id);
-            if (vacancyPlace != null && vacancyPlace.Count() == 1)
+            if (vacancyPlace.Count() == 1)
             {
                 int isDirty = 0;
                 foreach (var item in _vacancyPlacesType.GetProperties())
@@ -639,34 +681,6 @@ namespace EmploymentHelper.BL
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        
-
-
-        public async Task<ActionResult<Communications>> AddCommunication(Guid contactId, string commType, string commValue)
-        {
-            await using var db = new VacancyContext();
-            var communication = db.Communications.Where(c => c.ContactId == contactId
-                                                        && c.CommType == commType && c.CommValue == commValue);
-            var contact = db.Contacts.FirstOrDefault(c => c.Id == contactId);
-            if (communication == null || communication.Count() == 1)
-            {
-                db.Add(new Communications
-                {
-                    Id = Guid.NewGuid(),
-                    CommType = commType,
-                    CommValue = commValue,
-                    AccountId = contact.AccountId,
-                    ContactId = contactId
-                });
-                await db.SaveChangesAsync();
-            }
-            else
-            {
-                throw new Exception("Uniqueness error. This communication method already exists");
-            }
-            return communication.First();
-        }
-
         public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
         {
             await using var db = new VacancyContext();
@@ -717,7 +731,7 @@ namespace EmploymentHelper.BL
             return db.AllSkills.ToList();
         }
 
-        //public async Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill(string jobopeningName, string skillName)
+        //public async Task<ActionResult<Skills>> AddSkill(string jobopeningName, string skillName)
         //{
         //    await using var db = new VacancyContext();
         //    var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
@@ -743,11 +757,7 @@ namespace EmploymentHelper.BL
         //    {
         //        throw new Exception("Uniqueness error, this skill exists for this vacancy.");
         //    }
-        //    return db.SkillsJobopening.Where(j => j.IdJobopening == jobopening.First().Id).ToList();
+        //    return skill.First();
         //}
-
-
-
-
     }
 }

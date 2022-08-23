@@ -177,12 +177,13 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Jobopenings/Add")]
-        public async Task<ActionResult<Jobopenings>> AddJobopening([FromQuery] string vacancyPlaceColumnValue, [FromQuery] string name, 
-            [FromQuery] string link, [FromQuery] string accountName)
+        public async Task<ActionResult<Jobopenings>> AddJobopening([FromQuery] string specializationColumnValue, 
+            [FromQuery] string vacancyPlaceColumnValue, [FromQuery] string name, [FromQuery] string link, 
+            [FromQuery] string accountName)
         {
             try
             {
-                return await _eHLogic.AddJobopening(vacancyPlaceColumnValue, name, link, accountName);
+                return await _eHLogic.AddJobopening(specializationColumnValue, vacancyPlaceColumnValue, name, link, accountName);
             }
             catch (Exception ex)
             {
@@ -204,6 +205,19 @@ namespace EmploymentHelper
             }
         }
 
+
+        [HttpPost("Skills/Add")]
+        public async Task<ActionResult<Skills>> AddSkill([FromQuery] string jobopeningColumnValue, [FromQuery] string name)
+        {
+            try
+            {
+                return await _eHLogic.AddSkill(jobopeningColumnValue, name);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
 
         [HttpPost("Skills/Update")]
         public async Task<ActionResult<Skills>> EditSkill([FromQuery] Guid id, [FromQuery] string columnName, 
