@@ -19,6 +19,8 @@ namespace EmploymentHelper.Interface
         Task<ActionResult<IEnumerable<Communications>>> DeleteCommunications(Guid? id);
 
         Task<ActionResult<IEnumerable<Contacts>>> GetContacts(string columnValue = null);
+        Task<ActionResult<Contacts>> AddContact(string accountName, string lastName, string firstName, bool gender, DateTime? birthDate,
+            string middleName = null);
         Task<ActionResult<Contacts>> EditContact(Guid id, string columnName, string columnValue);
 
         Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings(string columnValue = null);

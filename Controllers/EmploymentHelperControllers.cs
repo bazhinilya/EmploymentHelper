@@ -133,6 +133,21 @@ namespace EmploymentHelper
             }
         }
 
+        [HttpPost("Contacts/Add")]
+        public async Task<ActionResult<Contacts>> AddContact([FromQuery] string accountName, [FromQuery] string lastName, 
+            [FromQuery] string firstName, [FromQuery] bool gender, [FromQuery] DateTime? birthDate, 
+            [FromQuery] string middleName = null)
+        {
+            try
+            {
+                return await _eHLogic.AddContact(accountName, lastName, firstName, gender, birthDate, middleName);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
         [HttpPost("Contacts/Update")]
         public async Task<ActionResult<Contacts>> EditContact([FromQuery] Guid id, [FromQuery] string columnName, 
             [FromQuery] string columnValue)
