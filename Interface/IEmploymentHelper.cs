@@ -20,6 +20,7 @@ namespace EmploymentHelper.Interface
         Task<ActionResult<Contacts>> EditContact(Guid id, string columnName, string columnValue);
 
         Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings(string columnValue = null);
+        Task<ActionResult<Jobopenings>> AddJobopening(string vacancyPlaceColumnValue, string name, string link, string accountName);
         Task<ActionResult<Jobopenings>> EditJobopening(Guid id, string columnName, string columnValue);
 
         Task<ActionResult<Skills>> EditSkill(Guid id, string columnName, string columnValue);
@@ -39,8 +40,6 @@ namespace EmploymentHelper.Interface
         Task<ActionResult<IEnumerable<VacancyPlaces>>> DeleteVacancyPlaces(Guid? id);
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        Task<ActionResult<Jobopenings>> AddVacancy(string vacancyPlaceName, string jobopeningName,
-            string specializationCode, string accountName, string link);
         Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsView(string columnValue = null);
         //Task<ActionResult<IEnumerable<SkillsJobopening>>> AddSkill(string jobopeningName, string skillName);
         

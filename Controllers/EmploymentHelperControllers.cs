@@ -147,6 +147,20 @@ namespace EmploymentHelper
             }
         }
 
+        [HttpPost("Jobopenings/Add")]
+        public async Task<ActionResult<Jobopenings>> AddJobopening([FromQuery] string vacancyPlaceColumnValue, [FromQuery] string name, 
+            [FromQuery] string link, [FromQuery] string accountName)
+        {
+            try
+            {
+                return await _eHLogic.AddJobopening(vacancyPlaceColumnValue, name, link, accountName);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
         [HttpPost("Jobopenings/Update")]
         public async Task<ActionResult<Jobopenings>> EditJobopening([FromQuery] Guid id, [FromQuery] string columnName, 
             [FromQuery] string columnValue)
@@ -328,22 +342,7 @@ namespace EmploymentHelper
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        [HttpPost("Jobopenings/Add")]
-        public async Task<ActionResult<Jobopenings>> AddVacancy([FromQuery] string vacancyPlace,
-            [FromQuery] string jobopeningName, [FromQuery] string specializationCode,
-            [FromQuery] string accountName, [FromQuery] string linkName)
-        {
-            try
-            {
-                return await _eHLogic
-                    .AddVacancy(vacancyPlace, jobopeningName,
-                    specializationCode, accountName, linkName);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
+        
 
 
         [HttpDelete("Jobopenings/Delete")]
