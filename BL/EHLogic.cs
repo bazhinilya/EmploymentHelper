@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.BL
@@ -367,6 +366,24 @@ namespace EmploymentHelper.BL
             return jobopening.First();
         }
 
+        public async Task<ActionResult<IEnumerable<Skills>>> GetSkills(string columnValue = null)
+        {
+            await using var db = new VacancyContext();
+            var skill = db.Skills.Where(s => s.Name == columnValue);
+            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            {
+                return db.Skills.Where(s => s.Id == id).ToList();
+            }
+            else if (skill != null && columnValue != null)
+            {
+                return skill.ToList();
+            }
+            else if (columnValue != null)
+            {
+                throw new Exception("Error, invalid column value.");
+            }
+            return db.Skills.ToList();
+        }
         public async Task<ActionResult<Skills>> AddSkill(string jobopeningColumnValue, string name)
         {
             await using var db = new VacancyContext();
@@ -735,34 +752,5 @@ namespace EmploymentHelper.BL
             }
             return db.AllSkills.ToList();
         }
-
-        //public async Task<ActionResult<Skills>> AddSkill(string jobopeningName, string skillName)
-        //{
-        //    await using var db = new VacancyContext();
-        //    var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningName);
-        //    var skill = db.Skills.Where(sk => sk.Name == skillName);
-
-        //    Guid skillId;
-        //    Guid jobopeningId = jobopening.First().Id;
-
-        //    if (jobopening != null)
-        //    {
-        //        skillId = Guid.NewGuid();
-        //        db.Add(new Skills { Id = skillId, Name = skillName });
-        //        await db.SaveChangesAsync();
-
-        //        var jobopeningSkill = db.JobopeningsSkills.FirstOrDefault(js => js.SkillId == skillId);
-        //        if (jobopeningSkill == null)
-        //        {
-        //            db.Add(new JobopeningsSkills { Id = Guid.NewGuid(), SkillId = skillId, JobopeningId = jobopeningId });
-        //            await db.SaveChangesAsync();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        throw new Exception("Uniqueness error, this skill exists for this vacancy.");
-        //    }
-        //    return skill.First();
-        //}
     }
 }

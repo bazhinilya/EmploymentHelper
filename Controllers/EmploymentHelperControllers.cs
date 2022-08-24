@@ -1,7 +1,6 @@
 ﻿using EmploymentHelper.BL;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
