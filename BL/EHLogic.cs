@@ -371,22 +371,27 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var jobopening = db.Jobopenings.Where(j => j.Name == jobopeningColumnValue);
-            var jobopeningSkill = db.JobopeningsSkills.Where(js => js.JobopeningId == jobopening.First().Id);
             var skill = db.Skills.Where(s => s.Name == name);
-            if (jobopeningSkill.Count() == 0)
-            {
-                db.JobopeningsSkills.Add(new JobopeningsSkills
-                {
-                    Id = Guid.NewGuid(),
-                    JobopeningId = jobopening.First().Id,
-                    SkillId = Guid.NewGuid()
-                });
-                await db.SaveChangesAsync();
-            }
             if (jobopening.Count() == 1 && skill.Count() == 0)
             {
-                db.Skills.Add(new Skills { Id = jobopeningSkill.First().SkillId, Name = name });
+                Guid skillId = Guid.NewGuid();
+                db.Skills.Add(new Skills { Id = skillId, Name = name });
                 await db.SaveChangesAsync();
+                var jobopeningSkill = db.JobopeningsSkills.Where(js => js.JobopeningId == jobopening.First().Id 
+                                                                    && js.SkillId == skillId);
+                if (jobopeningSkill.Count() == 0)
+                {
+                    db.JobopeningsSkills.Add(new JobopeningsSkills
+                    {
+                        Id = Guid.NewGuid(),
+                        JobopeningId = jobopening.First().Id,
+                        SkillId = skillId
+                    });
+                }
+                else
+                {
+                    throw new Exception("Link error. Their number exceeds the allowed value.");
+                }
             }
             else
             {
