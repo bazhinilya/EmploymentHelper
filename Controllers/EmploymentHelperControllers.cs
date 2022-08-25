@@ -1,7 +1,6 @@
 ﻿using EmploymentHelper.BL;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -232,6 +231,32 @@ namespace EmploymentHelper
             }
         }
 
+        [HttpDelete("Jobopenings/Delete")]
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteJobopenings([FromQuery] Guid? id)
+        {
+            try
+            {
+                return await _eHLogic.DeleteJobopenings(id);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+
+        [HttpGet("Skills/Get")]
+        public async Task<ActionResult<IEnumerable<Skills>>> GetSkills([FromQuery] string columnValue = null)
+        {
+            try
+            {
+                return await _eHLogic.GetSkills(columnValue);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
 
         [HttpPost("Skills/Add")]
         public async Task<ActionResult<Skills>> AddSkill([FromQuery] string jobopeningColumnValue, [FromQuery] string name)
@@ -253,6 +278,19 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.EditSkill(id, columnName, columnValue);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpDelete("Skills/Delete")]
+        public async Task<ActionResult<IEnumerable<Skills>>> DeleteSkills([FromQuery] Guid? id)
+        {
+            try
+            {
+                return await _eHLogic.DeleteSkills(id);
             }
             catch (Exception ex)
             {
@@ -294,6 +332,19 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.EditSpecialization(id, columnName, columnValue);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpDelete("Specializations/Delete")]
+        public async Task<ActionResult<IEnumerable<Specializations>>> DeleteSpecializations([FromQuery] Guid? id)
+        {
+            try
+            {
+                return await _eHLogic.DeleteSpecializations(id);
             }
             catch (Exception ex)
             {
@@ -412,15 +463,12 @@ namespace EmploymentHelper
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        
-
-
-        [HttpDelete("Jobopenings/Delete")]
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy([FromQuery] Guid idFromJobopenings)
+        [HttpGet("AllSkills/Get")]
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllSkillsView([FromQuery] string columnValue = null)
         {
             try
             {
-                return await _eHLogic.DeleteVacancy(idFromJobopenings);
+                return await _eHLogic.GetAllSkillsView(columnValue);
             }
             catch (Exception ex)
             {

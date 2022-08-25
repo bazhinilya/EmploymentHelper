@@ -97,7 +97,7 @@ namespace EmploymentHelper.BL
                     db.Accounts.Remove(account);
                 }
             }
-            else
+            else if (id == null)
             {
                 foreach (var account in db.Accounts)
                 {
@@ -193,7 +193,7 @@ namespace EmploymentHelper.BL
                     db.Communications.Remove(communication);
                 }
             }
-            else
+            else if (id == null)
             {
                 foreach (var communication in db.Communications)
                 {
@@ -300,7 +300,7 @@ namespace EmploymentHelper.BL
                     db.Contacts.Remove(contact);
                 }
             }
-            else
+            else if (id == null)
             {
                 foreach (var contact in db.Contacts)
                 {
@@ -410,6 +410,31 @@ namespace EmploymentHelper.BL
             }
             return jobopening.First();
         }
+        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteJobopenings(Guid? id)
+        {
+            //контрагент остается
+            await DeleteJobopeningVacancyPlace(id);
+            await DeleteVacancyConditions(id);
+            await DeleteSkills(id);
+            await using var db = new VacancyContext();
+            var jobopenings = db.Jobopenings.Where(j => j.Id == id || j.AccountId == id || j.SpecializationId == id);
+            if (jobopenings != null)
+            {
+                foreach (var jobopening in jobopenings)
+                {
+                    db.Jobopenings.Remove(jobopening);
+                }
+            }
+            else if (id == null)
+            {
+                foreach (var jobopening in db.Jobopenings)
+                {
+                    db.Jobopenings.Remove(jobopening);
+                }
+            }
+            await db.SaveChangesAsync();
+            return db.Jobopenings.ToList();
+        }
 
         public async Task<ActionResult<IEnumerable<Skills>>> GetSkills(string columnValue = null)
         {
@@ -492,6 +517,29 @@ namespace EmploymentHelper.BL
             }
             return skill.First();
         }
+        public async Task<ActionResult<IEnumerable<Skills>>> DeleteSkills(Guid? id)
+        {
+            await DeleteSpecializationSkill(id);
+            await DeleteJobopeningSkill(id);
+            await using var db = new VacancyContext();
+            var skills = db.Skills.Where(s => s.Id == id);
+            if (skills != null)
+            {
+                foreach (var skill in skills)
+                {
+                    db.Skills.Remove(skill);
+                }
+            }
+            else if (id == null)
+            {
+                foreach (var skill in db.Skills)
+                {
+                    db.Skills.Remove(skill);
+                }
+            }
+            await db.SaveChangesAsync();
+            return db.Skills.ToList();
+        }
 
         public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations(string columnValue = null)
         {
@@ -559,6 +607,29 @@ namespace EmploymentHelper.BL
                 throw new Exception("Uniqueness error, there are several Specializations.");
             }
             return specialization.First();
+        }
+        public async Task<ActionResult<IEnumerable<Specializations>>> DeleteSpecializations(Guid? id)
+        {
+            await DeleteJobopenings(id);
+            await DeleteSkills(id);
+            await using var db = new VacancyContext();
+            var specializations = db.Specializations.Where(s => s.Id == id);
+            if (specializations != null)
+            {
+                foreach (var specialization in specializations)
+                {
+                    db.Specializations.Remove(specialization);
+                }
+            }
+            else if (id == null)
+            {
+                foreach (var specialization in db.Specializations)
+                {
+                    db.Specializations.Remove(specialization);
+                }
+            }
+            await db.SaveChangesAsync();
+            return db.Specializations.ToList();
         }
 
         public async Task<ActionResult<IEnumerable<VacancyConditions>>> GetVacancyConditions(string columnValue = null)
@@ -647,7 +718,7 @@ namespace EmploymentHelper.BL
                     db.VacancyConditions.Remove(condition);
                 }
             }
-            else
+            else if (id == null)
             {
                 foreach (var condition in db.VacancyConditions)
                 {
@@ -725,6 +796,7 @@ namespace EmploymentHelper.BL
         }
         public async Task<ActionResult<IEnumerable<VacancyPlaces>>> DeleteVacancyPlaces(Guid? id)
         {
+            await DeleteJobopeningVacancyPlace(id);
             await using var db = new VacancyContext();
             var vacancyPlace = db.VacancyPlaces.Where(vc => vc.Id == id);
             if (vacancyPlace != null)
@@ -734,7 +806,7 @@ namespace EmploymentHelper.BL
                     db.VacancyPlaces.Remove(place);
                 }
             }
-            else
+            else if (id == null)
             {
                 foreach (var place in db.VacancyPlaces)
                 {
@@ -746,40 +818,63 @@ namespace EmploymentHelper.BL
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteVacancy(Guid idFromJobopenings)
+        private async Task<ActionResult<IEnumerable<JobopeningsVacancyPlaces>>> DeleteJobopeningVacancyPlace(Guid? id)
         {
             await using var db = new VacancyContext();
-            var vacancyConditions = db.VacancyConditions.Where(vc => vc.JobopeningId == idFromJobopenings);
-            var jobopening = db.Jobopenings.FirstOrDefault(j => j.Id == idFromJobopenings);
-            var account = db.Accounts.FirstOrDefault(a => a.Id == jobopening.AccountId);
-
-            if (vacancyConditions != null)
+            var jobopeningsVacancyPlaces = db.JobopeningsVacancyPlaces.Where(jvs => jvs.VacancyPlaceId == id || jvs.JobopeningId == id);
+            if (jobopeningsVacancyPlaces != null)
             {
-                foreach (var vacancyCondition in vacancyConditions)
+                foreach (var item in jobopeningsVacancyPlaces)
                 {
-                    db.VacancyConditions.Remove(vacancyCondition);
+                    db.JobopeningsVacancyPlaces.Remove(item);
                 }
-                await db.SaveChangesAsync();
             }
-
-            if (jobopening != null)
+            else
             {
-                db.Jobopenings.Remove(jobopening);
-                await db.SaveChangesAsync();
+                throw new Exception("Link error. These links do not exist.");
             }
-
-            if (account != null)
-            {
-                db.Accounts.Remove(account);
-                await db.SaveChangesAsync();
-            }
-
-            return db.Jobopenings.ToList();
+            await db.SaveChangesAsync();
+            return db.JobopeningsVacancyPlaces.ToList();
         }
+        private async Task<ActionResult<IEnumerable<JobopeningsSkills>>> DeleteJobopeningSkill(Guid? id)
+        {
+            await using var db = new VacancyContext();
+            var jobopeningsSkills = db.JobopeningsSkills.Where(js => js.JobopeningId == id || js.SkillId == id);
+            if (jobopeningsSkills != null)
+            {
+                foreach (var item in jobopeningsSkills)
+                {
+                    db.JobopeningsSkills.Remove(item);
+                }
+            }
+            else
+            {
+                throw new Exception("Link error. These links do not exist.");
+            }
+            await db.SaveChangesAsync();
+            return db.JobopeningsSkills.ToList();
+        }
+        private async Task<ActionResult<IEnumerable<SpecializationsSkills>>> DeleteSpecializationSkill(Guid? id)
+        {
+            await using var db = new VacancyContext();
+            var specializationsSkills = db.SpecializationsSkills.Where(ss => ss.SkillId == id || ss.SpecializationId == id);
+            if (specializationsSkills != null)
+            {
+                foreach (var item in specializationsSkills)
+                {
+                    db.SpecializationsSkills.Remove(item);
+                }
+            }
+            else
+            {
+                throw new Exception("Link error. These links do not exist.");
+            }
+            await db.SaveChangesAsync();
+            return db.SpecializationsSkills.ToList();
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public async Task<ActionResult<IEnumerable<AllSkills>>> GetSkillsView(string columnValue = null)
+        public async Task<ActionResult<IEnumerable<AllSkills>>> GetAllSkillsView(string columnValue = null)
         {
             await using var db = new VacancyContext();
             var skills = db.AllSkills.Where(s => s.LevelType == columnValue || s.LevelName == columnValue);
