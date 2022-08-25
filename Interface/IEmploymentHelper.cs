@@ -11,6 +11,7 @@ namespace EmploymentHelper.Interface
         Task<ActionResult<IEnumerable<Accounts>>> GetAccounts(string columnValue = null);
         Task<ActionResult<Accounts>> AddAccount(string name, string inn = null);
         Task<ActionResult<Accounts>> EditAccount(Guid id, string columnName, string columnValue);
+        Task<ActionResult<IEnumerable<Accounts>>> DeleteAccounts(Guid? id);
 
         Task<ActionResult<IEnumerable<Communications>>> GetCommunications(string columnValue = null);
         Task<ActionResult<Communications>> AddCommunication(string accountColumnValue, string commType, string commValue,
@@ -22,6 +23,7 @@ namespace EmploymentHelper.Interface
         Task<ActionResult<Contacts>> AddContact(string accountName, string lastName, string firstName, bool gender, DateTime? birthDate,
             string middleName = null);
         Task<ActionResult<Contacts>> EditContact(Guid id, string columnName, string columnValue);
+        Task<ActionResult<IEnumerable<Contacts>>> DeleteContacts(Guid? id);
 
         Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings(string columnValue = null);
         Task<ActionResult<Jobopenings>> AddJobopening(string specializationColumnValue, string vacancyPlaceColumnValue, string name, 

@@ -85,6 +85,28 @@ namespace EmploymentHelper.BL
 
             return account.First();
         }
+        public async Task<ActionResult<IEnumerable<Accounts>>> DeleteAccounts(Guid? id)
+        {
+            await DeleteContacts(id);
+            var db = new VacancyContext();
+            var accounts = db.Accounts.Where(a => a.Id == id);
+            if (accounts != null)
+            {
+                foreach (var account in accounts)
+                {
+                    db.Accounts.Remove(account);
+                }
+            }
+            else
+            {
+                foreach (var account in db.Accounts)
+                {
+                    db.Accounts.Remove(account);
+                }
+            }
+            await db.SaveChangesAsync();
+            return db.Accounts.ToList();
+        }
 
         public async Task<ActionResult<IEnumerable<Communications>>> GetCommunications(string columnValue = null)
         {
@@ -109,7 +131,7 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var account = db.Accounts.Where(a => a.Name == accountColumnValue || a.INN == accountColumnValue);
-            var contact = db.Contacts.Where(c => c.FullName == accountColumnValue);
+            var contact = db.Contacts.Where(c => c.FullName == contactColumnValue);
             var communication = db.Communications.Where(c => c.CommType == commType && c.ContactId == contact.First().Id);
             if (account.Count() == 1 && contact.Count() == 1 && communication.Count() == 0)
             {
@@ -126,6 +148,7 @@ namespace EmploymentHelper.BL
             {
                 throw new Exception("Uniqueness error. This communication already exists.");
             }
+            await db.SaveChangesAsync();
             return communication.First();
         }
         public async Task<ActionResult<Communications>> EditCommunication(Guid id, string columnName, string columnValue)
@@ -264,6 +287,28 @@ namespace EmploymentHelper.BL
             }
 
             return contact.First();
+        }
+        public async Task<ActionResult<IEnumerable<Contacts>>> DeleteContacts(Guid? id)
+        {
+            await DeleteCommunications(id);
+            await using var db = new VacancyContext();
+            var contacts = db.Contacts.Where(c => c.Id == id || c.AccountId == id);
+            if (contacts != null)
+            {
+                foreach (var contact in contacts)
+                {
+                    db.Contacts.Remove(contact);
+                }
+            }
+            else
+            {
+                foreach (var contact in db.Contacts)
+                {
+                    db.Contacts.Remove(contact);
+                }
+            }
+            await db.SaveChangesAsync();
+            return db.Contacts.ToList();
         }
 
         public async Task<ActionResult<IEnumerable<Jobopenings>>> GetJobopenings(string columnValue = null)

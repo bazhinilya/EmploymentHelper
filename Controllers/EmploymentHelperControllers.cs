@@ -1,6 +1,7 @@
 ﻿using EmploymentHelper.BL;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -54,6 +55,20 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.EditAccount(id, columnName, columnValue);
+            }
+            catch (Exception ex)
+            {
+
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpDelete("Accounts/Delete")]
+        public async Task<ActionResult<IEnumerable<Accounts>>> DeleteAccounts([FromQuery] Guid? id)
+        {
+            try
+            {
+                return await _eHLogic.DeleteAccounts(id);
             }
             catch (Exception ex)
             {
@@ -154,6 +169,19 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.EditContact(id, columnName, columnValue);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        [HttpDelete("Contacts/Delete")]
+        public async Task<ActionResult<IEnumerable<Contacts>>> DeleteContacts([FromQuery] Guid? id)
+        {
+            try
+            {
+                return await _eHLogic.DeleteContacts(id);
             }
             catch (Exception ex)
             {
