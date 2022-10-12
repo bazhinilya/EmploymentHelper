@@ -62,20 +62,6 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("Accounts/Delete")]
-        public async Task<ActionResult<IEnumerable<Accounts>>> DeleteAccounts([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteAccounts(id);
-            }
-            catch (Exception ex)
-            {
-
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
 
         [HttpGet("Communications/Get")]
         public async Task<ActionResult<IEnumerable<Communications>>> GetCommunications(string columnValue = null)
@@ -119,18 +105,6 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("Communications/Delete")]
-        public async Task<ActionResult<IEnumerable<Communications>>> DeleteCommunications([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteCommunications(id);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
 
 
         [HttpGet("Contacts/Get")]
@@ -168,19 +142,6 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.EditContact(id, columnName, columnValue);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpDelete("Contacts/Delete")]
-        public async Task<ActionResult<IEnumerable<Contacts>>> DeleteContacts([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteContacts(id);
             }
             catch (Exception ex)
             {
@@ -231,19 +192,6 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("Jobopenings/Delete")]
-        public async Task<ActionResult<IEnumerable<Jobopenings>>> DeleteJobopenings([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteJobopenings(id);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
 
         [HttpGet("Skills/Get")]
         public async Task<ActionResult<IEnumerable<Skills>>> GetSkills([FromQuery] string columnValue = null)
@@ -285,19 +233,6 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("Skills/Delete")]
-        public async Task<ActionResult<IEnumerable<Skills>>> DeleteSkills([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteSkills(id);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
 
         [HttpGet("Specializations/Get")]
         public async Task<ActionResult<IEnumerable<Specializations>>> GetSpecializations([FromQuery] string columnValue = null)
@@ -332,19 +267,6 @@ namespace EmploymentHelper
             try
             {
                 return await _eHLogic.EditSpecialization(id, columnName, columnValue);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
-        [HttpDelete("Specializations/Delete")]
-        public async Task<ActionResult<IEnumerable<Specializations>>> DeleteSpecializations([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteSpecializations(id);
             }
             catch (Exception ex)
             {
@@ -394,19 +316,6 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("VacancyConditions/Delete")]
-        public async Task<ActionResult<IEnumerable<VacancyConditions>>> DeleteVacancyConditions([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteVacancyConditions(id);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-
 
         [HttpGet("VacancyPlaces/Get")]
         public async Task<ActionResult<IEnumerable<VacancyPlaces>>> GetVacancyPlaces([FromQuery] string columnValue = null)
@@ -448,18 +357,6 @@ namespace EmploymentHelper
             }
         }
 
-        [HttpDelete("VacancyPlaces/Delete")]
-        public async Task<ActionResult<IEnumerable<VacancyPlaces>>> DeleteVacancyPlaces([FromQuery] Guid? id)
-        {
-            try
-            {
-                return await _eHLogic.DeleteVacancyPlaces(id);
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"Inner error. {ex.Message}\n{ex.StackTrace}");
-            }
-        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
