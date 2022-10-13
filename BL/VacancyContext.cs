@@ -7,6 +7,7 @@ namespace EmploymentHelper.BL
 {
     public class VacancyContext : DbContext
     {
+        //в единственное число
         public DbSet<Accounts> Accounts { get; set; }
         public DbSet<AllSkills> AllSkills { get; set; }
         public DbSet<Communications> Communications { get; set; }

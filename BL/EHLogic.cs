@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace EmploymentHelper.BL
 {
-    public class EHLogic : IEmploymentHelper
+    public class EHLogic : IEmploymentHelper//убрать interface
     {
         public EHLogic() { }
-
+        //Lazy
         private readonly Type _specializationsType = typeof(Specializations);
         private readonly Type _vacancyConditionsType = typeof(VacancyConditions);
         private readonly Type _communicationsType = typeof(Communications);
@@ -24,7 +24,7 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var account = db.Accounts.Where(a => a.Name == columnValue);
+            var account = db.Accounts.Where(a => a.Name == columnValue);//id
             if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
             {
                 return db.Accounts.Where(a => a.Id == id).ToList();
@@ -35,7 +35,7 @@ namespace EmploymentHelper.BL
             }
             else if (columnValue != null)
             {
-                throw new Exception("Error, invalid column value.");
+                throw new Exception("Error, invalid column value.");//перенести Exception
             }
             return db.Accounts.ToList();
         }
@@ -43,16 +43,16 @@ namespace EmploymentHelper.BL
         {
             await using var db = new VacancyContext();
             var account = db.Accounts.Where(a => a.Name == name || a.INN == inn);
-            if (account.Count() == 0)
+            if (account.Count() == 0)//заменить на !Any()
             {
-                db.Accounts.Add(new Accounts { Id = Guid.NewGuid(), Name = name, INN = inn });
+                db.Accounts.Add(new Accounts { Id = Guid.NewGuid(), Name = name, INN = inn });//создать экземпляр
             }
             else
             {
                 throw new Exception("Uniqueness error. This account already exists.");
             }
             await db.SaveChangesAsync();
-            return account.First();
+            return account.First();//перенести наверх
         }
         public async Task<ActionResult<Accounts>> EditAccount(Guid id, string columnName, string columnValue)
         {
@@ -60,7 +60,7 @@ namespace EmploymentHelper.BL
             var account = db.Accounts.Where(a => a.Id == id);
             if (account.Count() == 1)
             {
-                int isDirty = 0;
+                int isDirty = 0;//заменить на bool
                 foreach (var item in _accountsType.GetProperties())
                 {
                     if (item.Name == columnName)
