@@ -1,7 +1,7 @@
 using System;
 namespace EmploymentHelper.Models
 {
-public class Communications
+public class Communication
 {
 	public Guid Id { get; set; }
 	public string CommType { get; set; }

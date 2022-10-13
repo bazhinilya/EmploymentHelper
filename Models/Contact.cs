@@ -1,7 +1,7 @@
 using System;
 namespace EmploymentHelper.Models
 {
-public class Contacts
+public class Contact
 {
 	public Guid Id { get; set; }
 	public string LastName { get; set; }

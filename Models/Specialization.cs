@@ -1,11 +1,11 @@
 using System;
 namespace EmploymentHelper.Models
 {
-public class Accounts
+public class Specialization
 {
 	public Guid Id { get; set; }
 	public string Name { get; set; }
-	public string INN { get; set; }
+	public string Code { get; set; }
 
 }
 }

@@ -1,10 +1,11 @@
 using System;
 namespace EmploymentHelper.Models
 {
-public class JobopeningsVacancyPlaces
+public class VacancyCondition
 {
 	public Guid Id { get; set; }
-	public Guid VacancyPlaceId { get; set; }
+	public string ConditionValue { get; set; }
+	public string ConditionType { get; set; }
 	public Guid JobopeningId { get; set; }
 
 }

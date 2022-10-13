@@ -1,7 +1,7 @@
 using System;
 namespace EmploymentHelper.Models
 {
-public class AllSkills
+public class AllSkill
 {
 	public Guid Id { get; set; }
 	public string Skill { get; set; }
