@@ -21,16 +21,16 @@ namespace EmploymentHelper.BL
         private readonly Type _skillsType = typeof(Skill);
         private readonly Type _vacancyPlacesType = typeof(VacancyPlace);
 
-        //попробовать оставить IQueryable
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var accounts = db.Accounts.Where(a => a.Name == columnValue);//id
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var accounts = db.Accounts.Where(a => a.Name.Contains(columnValue) || a.Id == id);
+            if (isId && columnValue != null)
             {
                 return db.Accounts.Where(a => a.Id == id).ToList();
             }
-            else if (accounts != null && columnValue != null)
+            else if (accounts != null && columnValue != null && accounts.Any())
             {
                 return accounts.ToList();
             }
@@ -92,12 +92,14 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<Communication>>> GetCommunications(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var communications = db.Communications.Where(c => c.CommType == columnValue || c.CommValue == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var communications = db.Communications.Where(c => c.CommType == columnValue || c.CommValue == columnValue || c.Id == id 
+                                                            || c.AccountId == id || c.ContactId == id);
+            if (isId && columnValue != null)
             {
                 return db.Communications.Where(c => c.Id == id || c.AccountId == id || c.ContactId == id).ToList();
             }
-            else if (communications != null && columnValue != null)
+            else if (communications != null && columnValue != null && communications.Any())
             {
                 return communications.ToList();
             }
@@ -167,12 +169,13 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<Contact>>> GetContacts(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var contacts = db.Contacts.Where(c => c.LastName.Contains(columnValue));
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var contacts = db.Contacts.Where(c => c.LastName.Contains(columnValue) || c.Id == id);
+            if (isId && columnValue != null)
             {
                 return db.Contacts.Where(c => c.Id == id).ToList();
             }
-            else if (contacts != null && columnValue != null)
+            else if (contacts != null && columnValue != null && contacts.Any())
             {
                 return contacts.ToList();
             }
@@ -252,12 +255,13 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<Jobopening>>> GetJobopenings(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var jobopenings = db.Jobopenings.Where(s => s.Name == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var jobopenings = db.Jobopenings.Where(s => s.Name == columnValue || s.Id == id);
+            if (isId && columnValue != null)
             {
                 return db.Jobopenings.Where(j => j.Id == id).ToList();
             }
-            else if (jobopenings != null && columnValue != null)
+            else if (jobopenings != null && columnValue != null && jobopenings.Any())
             {
                 return jobopenings.ToList();
             }
@@ -352,12 +356,13 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<Skill>>> GetSkills(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var skills = db.Skills.Where(s => s.Name == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var skills = db.Skills.Where(s => s.Name == columnValue || s.Id == id);
+            if (isId && columnValue != null)
             {
                 return db.Skills.Where(s => s.Id == id).ToList();
             }
-            else if (skills != null && columnValue != null)
+            else if (skills != null && columnValue != null && skills.Any())
             {
                 return skills.ToList();
             }
@@ -434,12 +439,13 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<Specialization>>> GetSpecializations(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var specializations = db.Specializations.Where(s => s.Name == columnValue || s.Code == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var specializations = db.Specializations.Where(s => s.Name == columnValue || s.Code == columnValue || s.Id == id);
+            if (isId && columnValue != null)
             {
                 return db.Specializations.Where(s => s.Id == id).ToList();
             }
-            else if (specializations != null && columnValue != null)
+            else if (specializations != null && columnValue != null && specializations.Any())
             {
                 return specializations.ToList();
             }
@@ -502,12 +508,14 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<VacancyCondition>>> GetVacancyConditions(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var vacancyConditions = db.VacancyConditions.Where(c => c.ConditionType == columnValue || c.ConditionValue == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var vacancyConditions = db.VacancyConditions.Where(c => c.ConditionType == columnValue || c.ConditionValue == columnValue 
+                                                                 || c.Id == id || c.JobopeningId == id);
+            if (isId && columnValue != null)
             {
                 return db.VacancyConditions.Where(c => c.Id == id || c.JobopeningId == id).ToList();
             }
-            else if (vacancyConditions != null && columnValue != null)
+            else if (vacancyConditions != null && columnValue != null && vacancyConditions.Any())
             {
                 return vacancyConditions.ToList();
             }
@@ -578,12 +586,13 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<VacancyPlace>>> GetVacancyPlaces(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var vacancyPlaces = db.VacancyPlaces.Where(p => p.Name == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var vacancyPlaces = db.VacancyPlaces.Where(p => p.Name == columnValue || p.Code == columnValue || p.Id == id);
+            if (isId && columnValue != null)
             {
                 return db.VacancyPlaces.Where(p => p.Id == id).ToList();
             }
-            else if (vacancyPlaces != null && columnValue != null)
+            else if (vacancyPlaces != null && columnValue != null && vacancyPlaces.Any())
             {
                 return vacancyPlaces.ToList();
             }
@@ -646,14 +655,15 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<IEnumerable<AllSkill>>> GetAllSkillsView(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            var skills = db.AllSkills.Where(s => s.LevelType == columnValue || s.LevelName == columnValue);
-            if (Guid.TryParse(columnValue, out Guid id) && columnValue != null)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            var allSkills = db.AllSkills.Where(s => s.LevelType == columnValue || s.LevelName == columnValue || s.Id == id);
+            if (isId && columnValue != null)
             {
                 return db.AllSkills.Where(s => s.Id == id).ToList();
             }
-            else if (skills != null && columnValue != null)
+            else if (allSkills != null && columnValue != null && allSkills.Any())
             {
-                return skills.ToList();
+                return allSkills.ToList();
             }
             else if (columnValue != null)
             {
