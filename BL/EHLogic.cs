@@ -43,18 +43,23 @@ namespace EmploymentHelper.BL
         public async Task<ActionResult<Account>> AddAccount(string name, string inn = null)
         {
             await using var db = new VacancyContext();
-            var accounts = db.Accounts.Where(a => a.Name == name || a.INN == inn);
-            Account account = null;
-            if (accounts.Count() == 0)//заменить на !Any() -> проверить, не падает ли ошибка
+            var accounts = db.Accounts.FirstOrDefault(a => a.Name == name);
+            Account accountToNull = null;
+            if (inn != null)
             {
-                account = new Account { Id = Guid.NewGuid(), Name = name, INN = inn };
-                db.Accounts.Add(account);//создать экземпляр
-                await db.SaveChangesAsync();
-                return account;
+                accountToNull = db.Accounts.FirstOrDefault(a => a.INN == inn);
+            }
+            Account account = null;
+            if (accounts != null || (inn != null && accountToNull != null))
+            {
+                throw new Exception($"Uniqueness error. This account already exists.");
             }
             else
             {
-                throw new Exception("Uniqueness error. This account already exists.");
+                account = new Account { Id = Guid.NewGuid(), Name = name, INN = inn };
+                db.Accounts.Add(account);
+                await db.SaveChangesAsync();
+                return account;
             }
         }
         public async Task<ActionResult<Account>> EditAccount(Guid id, string columnName, string columnValue)
