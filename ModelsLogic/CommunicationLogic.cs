@@ -4,32 +4,27 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class CommunicationLogic
     {
-        private readonly Type _communicationsType = typeof(Communication);
+        private readonly PropertyInfo[] _communicationsType;
+        public CommunicationLogic() { _communicationsType = typeof(Communication).GetProperties(); }
         public async Task<ActionResult<IEnumerable<Communication>>> GetCommunications(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var communications = db.Communications.Where(c => c.CommType == columnValue || c.CommValue == columnValue || c.Id == id
-                                                            || c.AccountId == id || c.ContactId == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.Communications.Where(c => c.Id == id || c.AccountId == id || c.ContactId == id).ToList();
+                return db.Communications.ToList();
             }
-            else if (communications != null && columnValue != null && communications.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return communications.ToList();
+                return db.Communications.Where(c => c.Id == id).ToList();
             }
-            else if (columnValue != null)
-            {
-                throw new Exception("Error, invalid column value.");
-            }
-            return db.Communications.ToList();
+            return db.Communications.Where(c => c.CommType.Contains(columnValue) || c.CommValue.Contains(columnValue)).ToList();
         }
         public async Task<ActionResult<Communication>> AddCommunication(string accountColumnValue, string commType, string commValue,
             string contactColumnValue)
@@ -63,7 +58,7 @@ namespace EmploymentHelper.ModelsLogic
             if (communications.Count() == 1)
             {
                 int isDirty = 0;
-                foreach (var item in _communicationsType.GetProperties())
+                foreach (var item in _communicationsType)
                 {
                     if (item.Name == columnName)
                     {
