@@ -1,4 +1,4 @@
-﻿using EmploymentHelper.BL;
+﻿using EmploymentHelper.ModelsLogic;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,11 +12,27 @@ namespace EmploymentHelper
     [ApiController]
     public class EmploymentHelperControllers : ControllerBase
     {
-        private readonly EHLogic _eHLogic;
+        private readonly AccountLogic _acLogic;
+        private readonly CommunicationLogic _communicationLogic;
+        private readonly ContactLogic _contactLogic;
+        private readonly JobopeningLogic _jobopeningLogic;
+        private readonly SkillLogic _skillLogic;
+        private readonly SpecializationLogic _specializationLogic;
+        private readonly VacancyConditionLogic _vacancyConditionLogic;
+        private readonly VacancyPlaceLogic _vacancyPlaceLogic;
+        private readonly ViewLogic _viewLogic;
 
         public EmploymentHelperControllers()
         {
-            _eHLogic = new EHLogic();
+            _acLogic = new AccountLogic();
+            _communicationLogic = new CommunicationLogic();
+            _contactLogic = new ContactLogic();
+            _jobopeningLogic = new JobopeningLogic();
+            _skillLogic = new SkillLogic();
+            _specializationLogic = new SpecializationLogic();
+            _vacancyConditionLogic = new VacancyConditionLogic();
+            _vacancyPlaceLogic = new VacancyPlaceLogic();
+            _viewLogic = new ViewLogic();
         }
 
         [HttpGet("Accounts/Get")]
@@ -24,7 +40,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetAccounts(columnValue);
+                return await _acLogic.GetAccounts(columnValue);
             }
             catch (Exception ex)
             {
@@ -38,7 +54,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddAccount(name, inn);
+                return await _acLogic.AddAccount(name, inn);
             }
             catch (Exception ex)
             {
@@ -53,7 +69,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditAccount(id, columnName, columnValue);
+                return await _acLogic.EditAccount(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -68,7 +84,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetCommunications(columnValue);
+                return await _communicationLogic.GetCommunications(columnValue);
             }
             catch (Exception ex)
             {
@@ -83,7 +99,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddCommunication(accountColumnValue, commType, commValue, contactColumnValue);
+                return await _communicationLogic.AddCommunication(accountColumnValue, commType, commValue, contactColumnValue);
             }
             catch (Exception ex)
             {
@@ -97,7 +113,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditCommunication(id, columnName, columnValue);
+                return await _communicationLogic.EditCommunication(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -111,7 +127,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetContacts(columnValue);
+                return await _contactLogic.GetContacts(columnValue);
             }
             catch (Exception ex)
             {
@@ -126,7 +142,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddContact(accountName, lastName, firstName, gender, birthDate, middleName);
+                return await _contactLogic.AddContact(accountName, lastName, firstName, gender, birthDate, middleName);
             }
             catch (Exception ex)
             {
@@ -140,7 +156,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditContact(id, columnName, columnValue);
+                return await _contactLogic.EditContact(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -154,7 +170,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetJobopenings(columnValue);
+                return await _jobopeningLogic.GetJobopenings(columnValue);
             }
             catch (Exception ex)
             {
@@ -169,7 +185,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddJobopening(specializationColumnValue, vacancyPlaceColumnValue, name, link, accountName);
+                return await _jobopeningLogic.AddJobopening(specializationColumnValue, vacancyPlaceColumnValue, name, link, accountName);
             }
             catch (Exception ex)
             {
@@ -183,7 +199,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditJobopening(id, columnName, columnValue);
+                return await _jobopeningLogic.EditJobopening(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -197,7 +213,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetSkills(columnValue);
+                return await _skillLogic.GetSkills(columnValue);
             }
             catch (Exception ex)
             {
@@ -210,7 +226,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddSkill(jobopeningColumnValue, name);
+                return await _skillLogic.AddSkill(jobopeningColumnValue, name);
             }
             catch (Exception ex)
             {
@@ -224,7 +240,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditSkill(id, columnName, columnValue);
+                return await _skillLogic.EditSkill(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -238,7 +254,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetSpecializations(columnValue);
+                return await _specializationLogic.GetSpecializations(columnValue);
             }
             catch (Exception ex)
             {
@@ -251,7 +267,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddSpecialization(name, code);
+                return await _specializationLogic.AddSpecialization(name, code);
             }
             catch (Exception ex)
             {
@@ -265,7 +281,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditSpecialization(id, columnName, columnValue);
+                return await _specializationLogic.EditSpecialization(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -279,7 +295,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetVacancyConditions(columnValue);
+                return await _vacancyConditionLogic.GetVacancyConditions(columnValue);
             }
             catch (Exception ex)
             {
@@ -293,7 +309,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddVacancyCondition(jobopeningColumnValue, conditionType, conditionValue);
+                return await _vacancyConditionLogic.AddVacancyCondition(jobopeningColumnValue, conditionType, conditionValue);
             }
             catch (Exception ex)
             {
@@ -307,7 +323,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditVacancyCondition(id, columnName, columnValue);
+                return await _vacancyConditionLogic.EditVacancyCondition(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -321,7 +337,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetVacancyPlaces(columnValue);
+                return await _vacancyPlaceLogic.GetVacancyPlaces(columnValue);
             }
             catch (Exception ex)
             {
@@ -334,7 +350,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.AddVacancyPlace(name, code);
+                return await _vacancyPlaceLogic.AddVacancyPlace(name, code);
             }
             catch (Exception ex)
             {
@@ -348,7 +364,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.EditVacancyPlace(id, columnName, columnValue);
+                return await _vacancyPlaceLogic.EditVacancyPlace(id, columnName, columnValue);
             }
             catch (Exception ex)
             {
@@ -363,7 +379,7 @@ namespace EmploymentHelper
         {
             try
             {
-                return await _eHLogic.GetAllSkillsView(columnValue);
+                return await _viewLogic.GetAllSkillsView(columnValue);
             }
             catch (Exception ex)
             {
