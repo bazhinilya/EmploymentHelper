@@ -64,12 +64,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Accounts/Update")]
-        public async Task<ActionResult<Account>> EditAccount([FromQuery] Guid id, [FromQuery] string columnName, 
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<Account>> EditAccount([FromQuery] string columnValue, [FromQuery] string columnName, 
+            [FromQuery] string newValue)
         {
             try
             {
-                return await _acLogic.EditAccount(id, columnName, columnValue);
+                return await _acLogic.EditAccount(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {
@@ -94,12 +94,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Communications/Add")]
-        public async Task<ActionResult<Communication>> AddCommunication([FromQuery] string accountColumnValue, 
-            [FromQuery] string commType, [FromQuery] string commValue, [FromQuery] string contactColumnValue)
+        public async Task<ActionResult<Communication>> AddCommunication([FromQuery] string contactColumnValue, 
+            [FromQuery] string commType, [FromQuery] string commValue)
         {
             try
             {
-                return await _communicationLogic.AddCommunication(accountColumnValue, commType, commValue, contactColumnValue);
+                return await _communicationLogic.AddCommunication(contactColumnValue, commType, commValue);
             }
             catch (Exception ex)
             {

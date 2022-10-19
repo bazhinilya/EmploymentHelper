@@ -1,19 +1,18 @@
-﻿using EmploymentHelper.Models.Context;
+﻿using EmploymentHelper.BLogic;
 using EmploymentHelper.Models;
+using EmploymentHelper.Models.Context;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using EmploymentHelper.BLogic;
-using System.Reflection;
+using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class AccountLogic
     {
-        private readonly PropertyInfo[] _accountsType;
-        public AccountLogic() { _accountsType = typeof(Account).GetProperties(); }
+        private readonly Type _accountsType;
+        public AccountLogic() { _accountsType = typeof(Account); }
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -25,7 +24,7 @@ namespace EmploymentHelper.ModelsLogic
             {
                 return new List<Account>
                 {
-                    db.Accounts.FirstOrDefault(a => a.Id == id) ?? throw new Exception("Error, invalid column value.")
+                    db.Accounts.FirstOrDefault(a => a.Id == id) ?? throw new Exception("Invalid column value.")
                 };
             }
             return db.Accounts.Where(a => a.Name.Contains(columnValue)).ToList(); 
@@ -37,44 +36,46 @@ namespace EmploymentHelper.ModelsLogic
             Account accountByInn = null;
             if (inn != null)
             {
-                if (!InnerLogic.IsINN(inn)) throw new Exception("Error, invalid INN value.");
+                if (!InnerLogic.IsINN(inn)) throw new Exception("Invalid INN value.");
                 accountByInn = db.Accounts.FirstOrDefault(a => a.INN == inn);
             }
-            if (accountByName != null || accountByInn != null) throw new Exception($"Error. This account already exists.");
+            if (accountByName != null || accountByInn != null) throw new Exception($"This account already exist.");
             Account accountToCreate = new() { Id = Guid.NewGuid(), Name = name, INN = inn };
             db.Accounts.Add(accountToCreate);
             await db.SaveChangesAsync();
             return accountToCreate;
         }
-        public async Task<ActionResult<Account>> EditAccount(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<Account>> EditAccount(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var accountById = db.Accounts.FirstOrDefault(a => a.Id == id);
-            if (accountById == null) throw new Exception("Error, account does not exist.");
+            if (db.Accounts.Where(a => a.Name == newValue || a.INN == newValue).Any()) throw new Exception("This data already exsist.");
+            Account accountToChange = null;
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId)
+            {
+                accountToChange = db.Accounts.FirstOrDefault(a => a.Id == id) ?? throw new Exception("Account does not exist.");
+            }
             bool isInn = InnerLogic.IsINN(columnValue);
-            Account accountByInn = null;
-            Account accountByName = null;
             if (isInn)
             {
-                accountByInn = db.Accounts.FirstOrDefault(a => a.INN == columnValue);
+                accountToChange = db.Accounts.FirstOrDefault(a => a.INN == columnValue) ?? throw new Exception("Account does not exist.");
             }
-            if (!isInn)
+            if (!isInn && !isId)
             {
-                accountByName = db.Accounts.FirstOrDefault(a => a.Name.Contains(columnValue));
+                accountToChange = db.Accounts.FirstOrDefault(a => a.Name == columnValue) ?? throw new Exception("Account does not exist.");
             }
-            if (accountByInn == null && accountByName == null) throw new Exception("Error, there are several entities.");
             bool isDirty = true;
-            foreach (var item in _accountsType)
+            foreach (var item in _accountsType.GetProperties())
             {
                 if (item.Name == columnName)
                 {
-                    item.SetValue(accountById, columnValue);
+                    item.SetValue(accountToChange, newValue);
                     isDirty = false;
                 }
             }
-            if (isDirty) throw new Exception("Error, the column name is incorrect");
+            if (isDirty) throw new Exception("The column name is incorrect");
             await db.SaveChangesAsync();
-            return db.Accounts.First(a => a.Id == id);
+            return accountToChange;
         }
     }
 }

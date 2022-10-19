@@ -4,15 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class CommunicationLogic
     {
-        private readonly PropertyInfo[] _communicationsType;
-        public CommunicationLogic() { _communicationsType = typeof(Communication).GetProperties(); }
+        private readonly Type _communicationsType;
+        public CommunicationLogic() { _communicationsType = typeof(Communication); }
         public async Task<ActionResult<IEnumerable<Communication>>> GetCommunications(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -22,34 +21,44 @@ namespace EmploymentHelper.ModelsLogic
             }
             if (Guid.TryParse(columnValue, out Guid id))
             {
-                return db.Communications.Where(c => c.Id == id).ToList();
+                return new List<Communication>
+                {
+                    db.Communications.FirstOrDefault(c => c.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
             return db.Communications.Where(c => c.CommType.Contains(columnValue) || c.CommValue.Contains(columnValue)).ToList();
         }
-        public async Task<ActionResult<Communication>> AddCommunication(string accountColumnValue, string commType, string commValue,
-            string contactColumnValue)
+        public async Task<ActionResult<Communication>> AddCommunication(string contactColumnValue, string commType, string commValue)
         {
             await using var db = new VacancyContext();
-            var accounts = db.Accounts.Where(a => a.Name == accountColumnValue || a.INN == accountColumnValue);
-            var contacts = db.Contacts.Where(c => c.FullName == contactColumnValue);
-            var communications = db.Communications.Where(c => c.CommType == commType && c.ContactId == contacts.First().Id);
-            if (accounts.Count() == 1 && contacts.Count() == 1 && communications.Count() == 0)
+            Contact contactToFind = null;
+            bool isId = Guid.TryParse(contactColumnValue, out Guid id);
+            bool isBirthDate = DateTime.TryParse(contactColumnValue, out DateTime birthDate);
+            if (isBirthDate)
             {
-                db.Communications.Add(new Communication
-                {
-                    Id = Guid.NewGuid(),
-                    CommType = commType,
-                    CommValue = commValue,
-                    AccountId = accounts.First().Id,
-                    ContactId = contacts.First().Id
-                });
+                contactToFind = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate) ?? throw new Exception("Contact does not exist.");
             }
-            else
+            if (isId)
             {
-                throw new Exception("Uniqueness error. This communication already exists.");
+                contactToFind = db.Contacts.FirstOrDefault(c => c.Id == id) ?? throw new Exception("Contact does not exist.");
             }
+            if (!isId)
+            {
+                contactToFind = db.Contacts
+                    .FirstOrDefault(c => c.FullName == contactColumnValue || c.LastName == contactColumnValue) ?? throw new Exception("Contact does not exist.");
+            }
+            if (db.Communications.Where(c => c.CommType == commType && c.ContactId == contactToFind.Id).Any()) throw new Exception("This data already exsist.");
+            Communication communicationToCreate = new()
+            {
+                Id = Guid.NewGuid(),
+                CommType = commType,
+                CommValue = commValue,
+                AccountId = contactToFind.AccountId,
+                ContactId = contactToFind.Id
+            };
+            db.Communications.Add(communicationToCreate);
             await db.SaveChangesAsync();
-            return communications.First();
+            return communicationToCreate;
         }
         public async Task<ActionResult<Communication>> EditCommunication(Guid id, string columnName, string columnValue)
         {
@@ -58,7 +67,7 @@ namespace EmploymentHelper.ModelsLogic
             if (communications.Count() == 1)
             {
                 int isDirty = 0;
-                foreach (var item in _communicationsType)
+                foreach (var item in _communicationsType.GetProperties())
                 {
                     if (item.Name == columnName)
                     {
