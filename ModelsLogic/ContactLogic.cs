@@ -14,21 +14,30 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<IEnumerable<Contact>>> GetContacts(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var contacts = db.Contacts.Where(c => c.LastName.Contains(columnValue) || c.Id == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.Contacts.Where(c => c.Id == id).ToList();
+                return db.Contacts.ToList();
             }
-            else if (contacts != null && columnValue != null && contacts.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return contacts.ToList();
+                return new List<Contact>
+                {
+                    db.Contacts.FirstOrDefault(c => c.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
-            else if (columnValue != null)
+            if (DateTime.TryParse(columnValue, out DateTime birthDate))
             {
-                throw new Exception("Error, invalid column value.");
+                return db.Contacts.Where(c => c.BirthDate == birthDate).ToList() ?? throw new Exception("Invalid column value.");
             }
-            return db.Contacts.ToList();
+            if (bool.TryParse(columnValue, out bool gender))
+            {
+                return db.Contacts.Where(c => c.Gender == gender).ToList() ?? throw new Exception("Invalid column value.");
+            }
+            return db.Contacts.Where(c => c.LastName.Contains(columnValue)
+                                        || c.FirstName.Contains(columnValue)
+                                        || c.MiddleName.Contains(columnValue)
+                                        || c.FullName.Contains(columnValue))
+                              .ToList() ?? throw new Exception("Invalid column value.");
         }
         public async Task<ActionResult<Contact>> AddContact(string accountName, string lastName, string firstName,
             bool gender, DateTime? birthDate, string middleName = null)
@@ -96,5 +105,5 @@ namespace EmploymentHelper.ModelsLogic
 
             return contacts.First();
         }
-    }
+    }//Add, Edit
 }

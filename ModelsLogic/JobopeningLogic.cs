@@ -14,21 +14,25 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<IEnumerable<Jobopening>>> GetJobopenings(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var jobopenings = db.Jobopenings.Where(s => s.Name == columnValue || s.Id == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.Jobopenings.Where(j => j.Id == id).ToList();
+                return db.Jobopenings.ToList();
             }
-            else if (jobopenings != null && columnValue != null && jobopenings.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return jobopenings.ToList();
+                return new List<Jobopening>
+                {
+                    db.Jobopenings.FirstOrDefault(j => j.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
-            else if (columnValue != null)
+            if (columnValue.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception("Error, invalid column value.");
+                return new List<Jobopening> 
+                { 
+                    db.Jobopenings.FirstOrDefault(j => j.Link == columnValue) ?? throw new Exception("Invalid column value.")
+                };
             }
-            return db.Jobopenings.ToList();
+            return db.Jobopenings.Where(j => j.Name.Contains(columnValue)).ToList() ?? throw new Exception("Invalid column value.");
         }
         public async Task<ActionResult<Jobopening>> AddJobopening(string specializationColumnValue, string vacancyPlaceColumnValue,
             string name, string link, string accountName)
@@ -112,4 +116,4 @@ namespace EmploymentHelper.ModelsLogic
             return jobopenings.First();
         }
     }
-}
+}//Add, Edit

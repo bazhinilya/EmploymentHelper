@@ -14,21 +14,18 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<IEnumerable<Skill>>> GetSkills(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var skills = db.Skills.Where(s => s.Name == columnValue || s.Id == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.Skills.Where(s => s.Id == id).ToList();
+                return db.Skills.ToList();
             }
-            else if (skills != null && columnValue != null && skills.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return skills.ToList();
+                return new List<Skill>
+                {
+                    db.Skills.FirstOrDefault(s => s.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
-            else if (columnValue != null)
-            {
-                throw new Exception("Error, invalid column value.");
-            }
-            return db.Skills.ToList();
+            return db.Skills.Where(s => s.Name.Contains(columnValue)).ToList() ?? throw new Exception("Invalid column value.");
         }
         public async Task<ActionResult<Skill>> AddSkill(string jobopeningColumnValue, string name)
         {
@@ -93,5 +90,5 @@ namespace EmploymentHelper.ModelsLogic
             }
             return skills.First();
         }
-    }
+    }//Add, Edit
 }
