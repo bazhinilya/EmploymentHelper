@@ -1,10 +1,10 @@
-﻿using EmploymentHelper.Models.Context;
-using EmploymentHelper.Models;
+﻿using EmploymentHelper.Models;
+using EmploymentHelper.Models.Context;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
@@ -14,70 +14,62 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<IEnumerable<Specialization>>> GetSpecializations(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var specializations = db.Specializations.Where(s => s.Name == columnValue || s.Code == columnValue || s.Id == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.Specializations.Where(s => s.Id == id).ToList();
+                return db.Specializations.ToList();
             }
-            else if (specializations != null && columnValue != null && specializations.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return specializations.ToList();
+                return new List<Specialization> 
+                {
+                    db.Specializations.FirstOrDefault(s => s.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
-            else if (columnValue != null)
-            {
-                throw new Exception("Error, invalid column value.");
-            }
-            return db.Specializations.ToList();
+            return db.Specializations.Where(s => s.Code == columnValue || s.Name == columnValue)
+                                     .ToList() ?? throw new Exception("Invalid column value.");
         }
         public async Task<ActionResult<Specialization>> AddSpecialization(string name, string code)
         {
             await using var db = new VacancyContext();
-            var specializations = db.Specializations.Where(s => s.Name == name || s.Code == code);
-
-            if (specializations.Count() == 0)
-            {
-                db.Specializations.Add(new Specialization { Id = Guid.NewGuid(), Name = name, Code = code });
-            }
-            else
-            {
-                throw new Exception("Uniqueness error. This specialization already exists.");
-            }
+            Specialization specializationToCheck = db.Specializations.FirstOrDefault(s => s.Code == code || s.Name == name);
+            if (specializationToCheck != null) throw new Exception("This specialization already exist.");
+            Specialization specializationToCreate = new () { Id = Guid.NewGuid(), Name = name, Code = code };
+            db.Specializations.Add(specializationToCreate);
             await db.SaveChangesAsync();
-            return specializations.First();
+            return specializationToCreate;
         }
-        public async Task<ActionResult<Specialization>> EditSpecialization(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<Specialization>> EditSpecialization(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var specializations = db.Specializations.Where(s => s.Id == id);
-            if (specializations.Count() == 1)
+            Specialization specializationToCheck = db.Specializations.FirstOrDefault(s => s.Code == newValue || s.Name == newValue);
+            if (specializationToCheck != null) throw new Exception("This data already exsist.");
+            Specialization specializationToChange = null;
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId)
             {
-                int isDirty = 0;
-                foreach (var item in _specializationsType.GetProperties())
-                {
-                    if (item.Name == columnName)
-                    {
-                        item.SetValue(specializations.First(), columnValue);
-                        isDirty++;
-                    }
-                }
-                if (isDirty == 0)
-                {
-                    throw new Exception("Error, the column name is incorrect");
-                }
-                else if (db.Specializations.Where(s => s.Name == specializations.First().Name
-                                                || s.Code == specializations.First().Code)
-                                           .Count() != 1)
-                {
-                    throw new Exception("Error, you are trying to specify already existing data.");
-                }
-                await db.SaveChangesAsync();
+                specializationToChange = db.Specializations.FirstOrDefault(s => s.Id == id);
             }
-            else
+            if (columnValue.Length <= 4)
             {
-                throw new Exception("Uniqueness error, there are several Specializations.");
+                specializationToChange = db.Specializations.FirstOrDefault(s => s.Code == columnValue || s.Name == columnValue);
             }
-            return specializations.First();
+            if (columnValue.Length > 4)
+            {
+                specializationToChange = db.Specializations.FirstOrDefault(s => s.Name == columnValue || s.Code == columnValue);
+            }
+            if (specializationToChange == null) throw new Exception("Specialization does not exist.");
+            bool isDirty = true;
+            foreach (var item in _specializationsType.GetProperties())
+            {
+                if (item.Name == columnName)
+                {
+                    item.SetValue(specializationToChange, newValue);
+                    isDirty = false;
+                }
+            }
+            if (isDirty) throw new Exception("The column name is incorrect");
+            await db.SaveChangesAsync();
+            return specializationToChange;
         }
     }
 }

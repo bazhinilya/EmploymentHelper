@@ -14,22 +14,19 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<IEnumerable<VacancyCondition>>> GetVacancyConditions(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var vacancyConditions = db.VacancyConditions.Where(c => c.ConditionType == columnValue || c.ConditionValue == columnValue
-                                                                 || c.Id == id || c.JobopeningId == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.VacancyConditions.Where(c => c.Id == id || c.JobopeningId == id).ToList();
+                return db.VacancyConditions.ToList();
             }
-            else if (vacancyConditions != null && columnValue != null && vacancyConditions.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return vacancyConditions.ToList();
+                return new List<VacancyCondition>
+                {
+                    db.VacancyConditions.FirstOrDefault(vc => vc.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
-            else if (columnValue != null)
-            {
-                throw new Exception("Error, invalid column value.");
-            }
-            return db.VacancyConditions.ToList();
+            return db.VacancyConditions.Where(vc => vc.ConditionType.Contains(columnValue) || vc.ConditionValue.Contains(columnValue))
+                                       .ToList() ?? throw new Exception("Invalid column value.");
         }
         public async Task<ActionResult<VacancyCondition>> AddVacancyCondition(string jobopeningColumnValue, string conditionType,
             string conditionValue)
@@ -88,5 +85,5 @@ namespace EmploymentHelper.ModelsLogic
             }
             return vacancyConditions.First();
         }
-    }
+    }//Add, Edit
 }

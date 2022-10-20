@@ -25,13 +25,14 @@ namespace EmploymentHelper.ModelsLogic
                     db.VacancyPlaces.FirstOrDefault(vp => vp.Id == id) ?? throw new Exception("Invalid column value.")
                 };
             }
-            return db.VacancyPlaces.Where(vp => vp.Code.Contains(columnValue) || vp.Name.Contains(columnValue)).ToList();
+            return db.VacancyPlaces.Where(vp => vp.Code.Contains(columnValue) || vp.Name.Contains(columnValue))
+                                   .ToList() ?? throw new Exception("Invalid column value.");
         }
         public async Task<ActionResult<VacancyPlace>> AddVacancyPlace(string name, string code)
         {
             await using var db = new VacancyContext();
-            VacancyPlace vacancyPlaceByCode = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == code || vp.Name == name);
-            if (vacancyPlaceByCode != null) throw new Exception($"This vacancy place already exist.");
+            VacancyPlace vacancyPlaceToCheck = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == code || vp.Name == name);
+            if (vacancyPlaceToCheck != null) throw new Exception("This vacancy place already exist.");
             VacancyPlace vacancyPlaceToCreate = new() { Id = Guid.NewGuid(), Name = name, Code = code };
             db.VacancyPlaces.Add(vacancyPlaceToCreate);
             await db.SaveChangesAsync();

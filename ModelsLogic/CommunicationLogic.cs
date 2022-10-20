@@ -26,7 +26,8 @@ namespace EmploymentHelper.ModelsLogic
                     db.Communications.FirstOrDefault(c => c.Id == id) ?? throw new Exception("Invalid column value.")
                 };
             }
-            return db.Communications.Where(c => c.CommType.Contains(columnValue) || c.CommValue.Contains(columnValue)).ToList();
+            return db.Communications.Where(c => c.CommType.Contains(columnValue) || c.CommValue.Contains(columnValue))
+                                    .ToList() ?? throw new Exception("Invalid column value.");
         }
         public async Task<ActionResult<Communication>> AddCommunication(string contactColumnValue, string commType, string commValue)
         {
@@ -91,5 +92,5 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return communicationToChange;
         }
-    }//check AddCommunication
+    }//Add, Edit
 }

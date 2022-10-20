@@ -276,12 +276,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Specializations/Update")]
-        public async Task<ActionResult<Specialization>> EditSpecialization([FromQuery] Guid id, [FromQuery] string columnName,
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<Specialization>> EditSpecialization([FromQuery] string columnValue, [FromQuery] string columnName,
+            [FromQuery] string newValue)
         {
             try
             {
-                return await _specializationLogic.EditSpecialization(id, columnName, columnValue);
+                return await _specializationLogic.EditSpecialization(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {

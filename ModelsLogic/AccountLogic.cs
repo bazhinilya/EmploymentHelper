@@ -27,7 +27,7 @@ namespace EmploymentHelper.ModelsLogic
                     db.Accounts.FirstOrDefault(a => a.Id == id) ?? throw new Exception("Invalid column value.")
                 };
             }
-            return db.Accounts.Where(a => a.Name.Contains(columnValue)).ToList(); 
+            return db.Accounts.Where(a => a.Name.Contains(columnValue)).ToList() ?? throw new Exception("Invalid column value."); 
         }
         public async Task<ActionResult<Account>> AddAccount(string name, string inn = null)
         {

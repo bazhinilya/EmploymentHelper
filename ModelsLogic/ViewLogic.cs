@@ -24,7 +24,8 @@ namespace EmploymentHelper.ModelsLogic
                     db.AllSkills.FirstOrDefault(a => a.Id == id) ?? throw new Exception("Invalid column value.")
                 };
             }
-            return db.AllSkills.Where(a => a.LevelType.Contains(columnValue) || a.LevelName.Contains(columnValue) || a.Skill.Contains(columnValue)).ToList();
+            return db.AllSkills.Where(a => a.LevelType.Contains(columnValue) || a.LevelName.Contains(columnValue) || a.Skill.Contains(columnValue))
+                               .ToList() ?? throw new Exception("Invalid column value.");
         }
 
     }
