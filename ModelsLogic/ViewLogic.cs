@@ -13,21 +13,18 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<IEnumerable<AllSkill>>> GetAllSkillsView(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var allSkills = db.AllSkills.Where(s => s.LevelType == columnValue || s.LevelName == columnValue || s.Id == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.AllSkills.Where(s => s.Id == id).ToList();
+                return db.AllSkills.ToList();
             }
-            else if (allSkills != null && columnValue != null && allSkills.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return allSkills.ToList();
+                return new List<AllSkill>
+                {
+                    db.AllSkills.FirstOrDefault(a => a.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
-            else if (columnValue != null)
-            {
-                throw new Exception("Error, invalid column value.");
-            }
-            return db.AllSkills.ToList();
+            return db.AllSkills.Where(a => a.LevelType.Contains(columnValue) || a.LevelName.Contains(columnValue) || a.Skill.Contains(columnValue)).ToList();
         }
 
     }

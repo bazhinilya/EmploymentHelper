@@ -60,36 +60,36 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return communicationToCreate;
         }
-        public async Task<ActionResult<Communication>> EditCommunication(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<Communication>> EditCommunication(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var communications = db.Communications.Where(c => c.Id == id);
-            if (communications.Count() == 1)
+            //var communicationToCheck = db.Communications.Where(c => c.CommType == newValue || c.CommValue == newValue);
+            //if (communicationToCheck.Any()) throw new Exception("This data already exsist.");
+            Communication communicationToChange = null;
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId)
             {
-                int isDirty = 0;
-                foreach (var item in _communicationsType.GetProperties())
-                {
-                    if (item.Name == columnName)
-                    {
-                        item.SetValue(communications.First(), columnValue);
-                    }
-                }
-                if (isDirty == 0)
-                {
-                    throw new Exception("Error, the column name is incorrect");
-                }
-                else if (db.Communications.Where(c => c.CommType == communications.First().CommType
-                                            && c.ContactId == communications.First().ContactId).Count() != 1)
-                {
-                    throw new Exception("Error, you are trying to specify already existing data.");
-                }
-                await db.SaveChangesAsync();
+                communicationToChange = db.Communications.FirstOrDefault(c => c.Id == id) ?? throw new Exception("Communication does not exist.");
             }
-            else
+            if (!isId)
             {
-                throw new Exception("Uniqueness error, there are several Communications.");
+                communicationToChange = db.Communications.FirstOrDefault(c => c.CommType == columnValue) ?? throw new Exception("Communication does not exist.");
             }
-            return communications.First();
+            //if (db.Communications.Where(c => c.CommType == communications.First().CommType && c.ContactId == communications.First().ContactId).Count() != 1)
+            //    throw new Exception("Error, you are trying to specify already existing data."); <- проверка на повторения
+            //есть смысл добавить поле contact, чтобы было все ок с ID?
+            bool isDirty = true;
+            foreach (var item in _communicationsType.GetProperties())
+            {
+                if (item.Name == columnName)
+                {
+                    item.SetValue(communicationToChange, newValue);
+                    isDirty = false;
+                }
+            }
+            if (isDirty) throw new Exception("The column name is incorrect");
+            await db.SaveChangesAsync();
+            return communicationToChange;
         }
-    }
+    }//check AddCommunication
 }

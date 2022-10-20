@@ -108,12 +108,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Communications/Update")]
-        public async Task<ActionResult<Communication>> EditCommunication([FromQuery] Guid id, [FromQuery] string columnName,
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<Communication>> EditCommunication([FromQuery] string columnValue, 
+            [FromQuery] string columnName, [FromQuery] string newValue)
         {
             try
             {
-                return await _communicationLogic.EditCommunication(id, columnName, columnValue);
+                return await _communicationLogic.EditCommunication(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {
@@ -359,12 +359,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("VacancyPlaces/Update")]
-        public async Task<ActionResult<VacancyPlace>> EditVacancyPlace([FromQuery] Guid id, [FromQuery] string columnName, 
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<VacancyPlace>> EditVacancyPlace([FromQuery] string columnValue, [FromQuery] string columnName, 
+            [FromQuery] string newValue)
         {
             try
             {
-                return await _vacancyPlaceLogic.EditVacancyPlace(id, columnName, columnValue);
+                return await _vacancyPlaceLogic.EditVacancyPlace(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {

@@ -14,68 +14,61 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<IEnumerable<VacancyPlace>>> GetVacancyPlaces(string columnValue = null)
         {
             await using var db = new VacancyContext();
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            var vacancyPlaces = db.VacancyPlaces.Where(p => p.Name == columnValue || p.Code == columnValue || p.Id == id);
-            if (isId && columnValue != null)
+            if (columnValue == null)
             {
-                return db.VacancyPlaces.Where(p => p.Id == id).ToList();
+                return db.VacancyPlaces.ToList();
             }
-            else if (vacancyPlaces != null && columnValue != null && vacancyPlaces.Any())
+            if (Guid.TryParse(columnValue, out Guid id))
             {
-                return vacancyPlaces.ToList();
+                return new List<VacancyPlace>
+                {
+                    db.VacancyPlaces.FirstOrDefault(vp => vp.Id == id) ?? throw new Exception("Invalid column value.")
+                };
             }
-            else if (columnValue != null)
-            {
-                throw new Exception("Error, invalid column value.");
-            }
-            return db.VacancyPlaces.ToList();
+            return db.VacancyPlaces.Where(vp => vp.Code.Contains(columnValue) || vp.Name.Contains(columnValue)).ToList();
         }
         public async Task<ActionResult<VacancyPlace>> AddVacancyPlace(string name, string code)
         {
             await using var db = new VacancyContext();
-            var vacancyPlaces = db.VacancyPlaces.Where(vc => vc.Name == name || vc.Code == code);
-            if (vacancyPlaces.Count() == 0)
-            {
-                db.VacancyPlaces.Add(new VacancyPlace { Id = Guid.NewGuid(), Name = name, Code = code });
-                await db.SaveChangesAsync();
-            }
-            else
-            {
-                throw new Exception("Uniqueness error. This vacancy place already exists.");
-            }
-            return vacancyPlaces.First();
+            VacancyPlace vacancyPlaceByCode = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == code || vp.Name == name);
+            if (vacancyPlaceByCode != null) throw new Exception($"This vacancy place already exist.");
+            VacancyPlace vacancyPlaceToCreate = new() { Id = Guid.NewGuid(), Name = name, Code = code };
+            db.VacancyPlaces.Add(vacancyPlaceToCreate);
+            await db.SaveChangesAsync();
+            return vacancyPlaceToCreate;
         }
-        public async Task<ActionResult<VacancyPlace>> EditVacancyPlace(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<VacancyPlace>> EditVacancyPlace(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var vacancyPlaces = db.VacancyPlaces.Where(vp => vp.Id == id);
-            if (vacancyPlaces.Count() == 1)
+            VacancyPlace vacancyPlaceToCheck = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == newValue || vp.Name == newValue);
+            if (vacancyPlaceToCheck != null) throw new Exception("This data already exsist.");
+            VacancyPlace vacancyPlaceToChange = null;
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId)
             {
-                int isDirty = 0;
-                foreach (var item in _vacancyPlacesType.GetProperties())
-                {
-                    if (item.Name == columnName)
-                    {
-                        item.SetValue(vacancyPlaces.First(), columnValue);
-                    }
-                }
-                if (isDirty == 0)
-                {
-                    throw new Exception("Error, the column name is incorrect");
-                }
-                else if (db.VacancyPlaces.Where(vp => vp.Id == vacancyPlaces.First().Id
-                                                && vp.Name == vacancyPlaces.First().Name)
-                                         .Count() != 1)
-                {
-                    throw new Exception("Error, you are trying to specify already existing data.");
-                }
-                await db.SaveChangesAsync();
+                vacancyPlaceToChange = db.VacancyPlaces.FirstOrDefault(vp => vp.Id == id);
             }
-            else
+            if (columnValue.Length <= 4)
             {
-                throw new Exception("Uniqueness error, there are several entities.");
+                vacancyPlaceToChange = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == columnValue || vp.Name == columnValue);
             }
-            return vacancyPlaces.First();
+            if (columnValue.Length > 4)
+            {
+                vacancyPlaceToChange = db.VacancyPlaces.FirstOrDefault(vp => vp.Name == columnValue || vp.Code == columnValue);
+            }
+            if (vacancyPlaceToChange == null) throw new Exception("Vacancy places does not exist.");
+            bool isDirty = true;
+            foreach (var item in _vacancyPlacesType.GetProperties())
+            {
+                if (item.Name == columnName)
+                {
+                    item.SetValue(vacancyPlaceToChange, newValue);
+                    isDirty = false;
+                }
+            }
+            if (isDirty) throw new Exception("The column name is incorrect");
+            await db.SaveChangesAsync();
+            return vacancyPlaceToChange;
         }
     }
 }

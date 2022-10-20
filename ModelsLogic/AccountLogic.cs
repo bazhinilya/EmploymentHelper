@@ -32,14 +32,14 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Account>> AddAccount(string name, string inn = null)
         {
             await using var db = new VacancyContext();
-            var accountByName = db.Accounts.FirstOrDefault(a => a.Name.Contains(name));
-            Account accountByInn = null;
+            Account accountByName = db.Accounts.FirstOrDefault(a => a.Name == name);
+            if (accountByName != null) throw new Exception($"This account already exist.");
             if (inn != null)
             {
                 if (!InnerLogic.IsINN(inn)) throw new Exception("Invalid INN value.");
-                accountByInn = db.Accounts.FirstOrDefault(a => a.INN == inn);
+                Account accountByInn = db.Accounts.FirstOrDefault(a => a.INN == inn);
+                if (accountByInn != null) throw new Exception($"This account already exist.");
             }
-            if (accountByName != null || accountByInn != null) throw new Exception($"This account already exist.");
             Account accountToCreate = new() { Id = Guid.NewGuid(), Name = name, INN = inn };
             db.Accounts.Add(accountToCreate);
             await db.SaveChangesAsync();
@@ -48,22 +48,24 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Account>> EditAccount(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            if (db.Accounts.Where(a => a.Name == newValue || a.INN == newValue).Any()) throw new Exception("This data already exsist.");
+            Account accountToCheck = db.Accounts.FirstOrDefault(a => a.INN == newValue || a.Name == columnName);
+            if (accountToCheck != null) throw new Exception("This data already exsist.");
             Account accountToChange = null;
             bool isId = Guid.TryParse(columnValue, out Guid id);
+            bool isInn = InnerLogic.IsINN(columnValue);
             if (isId)
             {
-                accountToChange = db.Accounts.FirstOrDefault(a => a.Id == id) ?? throw new Exception("Account does not exist.");
+                accountToChange = db.Accounts.FirstOrDefault(a => a.Id == id);
             }
-            bool isInn = InnerLogic.IsINN(columnValue);
             if (isInn)
             {
-                accountToChange = db.Accounts.FirstOrDefault(a => a.INN == columnValue) ?? throw new Exception("Account does not exist.");
+                accountToChange = db.Accounts.FirstOrDefault(a => a.INN == columnValue);
             }
             if (!isInn && !isId)
             {
-                accountToChange = db.Accounts.FirstOrDefault(a => a.Name == columnValue) ?? throw new Exception("Account does not exist.");
+                accountToChange = db.Accounts.FirstOrDefault(a => a.Name == columnValue);
             }
+            if (accountToChange == null) throw new Exception("Account does not exist.");
             bool isDirty = true;
             foreach (var item in _accountsType.GetProperties())
             {
