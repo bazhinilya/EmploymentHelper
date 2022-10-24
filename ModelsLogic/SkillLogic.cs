@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class SkillLogic
     {
-        private readonly Type _skillsType = typeof(Skill);
+        private readonly PropertyInfo[] _skillsProperties;
+        public SkillLogic() { _skillsProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<Skill>>> GetSkills(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -67,7 +69,7 @@ namespace EmploymentHelper.ModelsLogic
             if (skills.Count() == 1)
             {
                 int isDirty = 0;
-                foreach (var item in _skillsType.GetProperties())
+                foreach (var item in _skillsProperties)
                 {
                     if (item.Name == columnName)
                     {

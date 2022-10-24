@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class VacancyPlaceLogic
     {
-        private readonly Type _vacancyPlacesType = typeof(VacancyPlace);
+        private readonly PropertyInfo[] _vacancyPlacesProperties; 
+        public VacancyPlaceLogic() { _vacancyPlacesProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<VacancyPlace>>> GetVacancyPlaces(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -59,7 +61,7 @@ namespace EmploymentHelper.ModelsLogic
             }
             if (vacancyPlaceToChange == null) throw new Exception("Vacancy places does not exist.");
             bool isDirty = true;
-            foreach (var item in _vacancyPlacesType.GetProperties())
+            foreach (var item in _vacancyPlacesProperties)
             {
                 if (item.Name == columnName)
                 {

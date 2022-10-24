@@ -5,14 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class AccountLogic
     {
-        private readonly Type _accountsType;
-        public AccountLogic() { _accountsType = typeof(Account); }
+        private readonly PropertyInfo[] _accountsProperties; 
+        public AccountLogic() { _accountsProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -67,7 +68,7 @@ namespace EmploymentHelper.ModelsLogic
             }
             if (accountToChange == null) throw new Exception("Account does not exist.");
             bool isDirty = true;
-            foreach (var item in _accountsType.GetProperties())
+            foreach (var item in _accountsProperties)
             {
                 if (item.Name == columnName)
                 {

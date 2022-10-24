@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class JobopeningLogic
     {
-        private readonly Type _jobopeningsType = typeof(Jobopening);
+        private readonly PropertyInfo[] _jobopeningsProperties;
+        public JobopeningLogic() { _jobopeningsProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<Jobopening>>> GetJobopenings(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -90,7 +92,7 @@ namespace EmploymentHelper.ModelsLogic
             if (jobopenings.Count() == 1)
             {
                 int isDirty = 0;
-                foreach (var item in _jobopeningsType.GetProperties())
+                foreach (var item in _jobopeningsProperties)
                 {
                     if (item.Name == columnName)
                     {

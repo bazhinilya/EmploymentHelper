@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class CommunicationLogic
     {
-        private readonly Type _communicationsType;
-        public CommunicationLogic() { _communicationsType = typeof(Communication); }
+        private readonly PropertyInfo[] _communicationsProperties;
+        public CommunicationLogic() { _communicationsProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<Communication>>> GetCommunications(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -80,7 +81,7 @@ namespace EmploymentHelper.ModelsLogic
             //    throw new Exception("Error, you are trying to specify already existing data."); <- проверка на повторения
             //есть смысл добавить поле contact, чтобы было все ок с ID?
             bool isDirty = true;
-            foreach (var item in _communicationsType.GetProperties())
+            foreach (var item in _communicationsProperties)
             {
                 if (item.Name == columnName)
                 {

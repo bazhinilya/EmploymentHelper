@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class SpecializationLogic
     {
-        private readonly Type _specializationsType = typeof(Specialization);
+        private readonly PropertyInfo[] _specializationsProperties;
+        public SpecializationLogic() { _specializationsProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<Specialization>>> GetSpecializations(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -59,7 +61,7 @@ namespace EmploymentHelper.ModelsLogic
             }
             if (specializationToChange == null) throw new Exception("Specialization does not exist.");
             bool isDirty = true;
-            foreach (var item in _specializationsType.GetProperties())
+            foreach (var item in _specializationsProperties)
             {
                 if (item.Name == columnName)
                 {

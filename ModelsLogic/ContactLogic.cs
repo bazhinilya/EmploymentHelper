@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace EmploymentHelper.ModelsLogic
 {
     public class ContactLogic
     {
-        private readonly Type _contactsType = typeof(Contact);
+        private readonly PropertyInfo[] _contactsProperties;
+        public ContactLogic() { _contactsProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<Contact>>> GetContacts(string columnValue = null)
         {
             await using var db = new VacancyContext();
@@ -79,7 +81,7 @@ namespace EmploymentHelper.ModelsLogic
             if (contacts.Count() == 1)
             {
                 int isDirty = 0;
-                foreach (var item in _contactsType.GetProperties())
+                foreach (var item in _contactsProperties)
                 {
                     if (item.Name == columnName)
                     {
