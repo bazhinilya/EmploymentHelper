@@ -34,22 +34,23 @@ namespace EmploymentHelper.ModelsLogic
         {
             await using var db = new VacancyContext();
             Contact contactToFind = null;
-            bool isId = Guid.TryParse(contactColumnValue, out Guid id);
             bool isBirthDate = DateTime.TryParse(contactColumnValue, out DateTime birthDate);
             if (isBirthDate)
             {
-                contactToFind = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate) ?? throw new Exception("Contact does not exist.");
+                contactToFind = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate);
             }
+            bool isId = Guid.TryParse(contactColumnValue, out Guid id);
             if (isId)
             {
-                contactToFind = db.Contacts.FirstOrDefault(c => c.Id == id) ?? throw new Exception("Contact does not exist.");
+                contactToFind = db.Contacts.FirstOrDefault(c => c.Id == id);
             }
-            if (!isId)
+            if (!isId && !isBirthDate)
             {
-                contactToFind = db.Contacts
-                    .FirstOrDefault(c => c.FullName == contactColumnValue || c.LastName == contactColumnValue) ?? throw new Exception("Contact does not exist.");
+                contactToFind = db.Contacts.FirstOrDefault(c => c.FullName == contactColumnValue || c.LastName == contactColumnValue);
             }
-            if (db.Communications.Where(c => c.CommType == commType && c.ContactId == contactToFind.Id).Any()) throw new Exception("This data already exsist.");
+            if (contactToFind == null) throw new Exception("Contact does not exist.");
+            Communication communicationToCheck = db.Communications.FirstOrDefault(c => c.CommType == commType && c.ContactId == id);
+            if (communicationToCheck != null) throw new Exception("This communication already exist.");
             Communication communicationToCreate = new()
             {
                 Id = Guid.NewGuid(),
@@ -65,21 +66,10 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Communication>> EditCommunication(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            //var communicationToCheck = db.Communications.Where(c => c.CommType == newValue || c.CommValue == newValue);
-            //if (communicationToCheck.Any()) throw new Exception("This data already exsist.");
-            Communication communicationToChange = null;
             bool isId = Guid.TryParse(columnValue, out Guid id);
-            if (isId)
-            {
-                communicationToChange = db.Communications.FirstOrDefault(c => c.Id == id) ?? throw new Exception("Communication does not exist.");
-            }
-            if (!isId)
-            {
-                communicationToChange = db.Communications.FirstOrDefault(c => c.CommType == columnValue) ?? throw new Exception("Communication does not exist.");
-            }
-            //if (db.Communications.Where(c => c.CommType == communications.First().CommType && c.ContactId == communications.First().ContactId).Count() != 1)
-            //    throw new Exception("Error, you are trying to specify already existing data."); <- проверка на повторения
-            //есть смысл добавить поле contact, чтобы было все ок с ID?
+            if (isId) throw new Exception("Invalid column value.");
+            Communication communicationToChange = db.Communications.FirstOrDefault(c => c.Id == id);
+            if (communicationToChange == null) throw new Exception("Communication does not exist.");
             bool isDirty = true;
             foreach (var item in _communicationsProperties)
             {
@@ -93,5 +83,5 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return communicationToChange;
         }
-    }//Add, Edit
+    }
 }

@@ -151,12 +151,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Contacts/Update")]
-        public async Task<ActionResult<Contact>> EditContact([FromQuery] Guid id, [FromQuery] string columnName, 
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<Contact>> EditContact([FromQuery] string columnValue, [FromQuery] string columnName,
+            [FromQuery] string newValue)
         {
             try
             {
-                return await _contactLogic.EditContact(id, columnName, columnValue);
+                return await _contactLogic.EditContact(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {
@@ -194,12 +194,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Jobopenings/Update")]
-        public async Task<ActionResult<Jobopening>> EditJobopening([FromQuery] Guid id, [FromQuery] string columnName, 
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<Jobopening>> EditJobopening([FromQuery] string columnValue, [FromQuery] string columnName,
+            [FromQuery] string newValue)
         {
             try
             {
-                return await _jobopeningLogic.EditJobopening(id, columnName, columnValue);
+                return await _jobopeningLogic.EditJobopening(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {
@@ -235,12 +235,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Skills/Update")]
-        public async Task<ActionResult<Skill>> EditSkill([FromQuery] Guid id, [FromQuery] string columnName, 
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<Skill>> EditSkill([FromQuery] string columnValue, [FromQuery] string columnName,
+            [FromQuery] string newValue)
         {
             try
             {
-                return await _skillLogic.EditSkill(id, columnName, columnValue);
+                return await _skillLogic.EditSkill(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {
@@ -318,12 +318,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("VacancyConditions/Update")]
-        public async Task<ActionResult<VacancyCondition>> EditVacancyCondition([FromQuery] Guid id, [FromQuery] string columnName, 
-            [FromQuery] string columnValue)
+        public async Task<ActionResult<VacancyCondition>> EditVacancyCondition([FromQuery] string columnValue, [FromQuery] string columnName,
+            [FromQuery] string newValue)
         {
             try
             {
-                return await _vacancyConditionLogic.EditVacancyCondition(id, columnName, columnValue);
+                return await _vacancyConditionLogic.EditVacancyCondition(columnValue, columnName, newValue);
             }
             catch (Exception ex)
             {

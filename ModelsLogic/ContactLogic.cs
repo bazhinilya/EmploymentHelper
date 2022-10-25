@@ -74,38 +74,25 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return contacts.First();
         }
-        public async Task<ActionResult<Contact>> EditContact(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<Contact>> EditContact(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var contacts = db.Contacts.Where(c => c.Id == id);
-            if (contacts.Count() == 1)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId) throw new Exception("Invalid column value.");
+            Contact contactToChange = db.Contacts.FirstOrDefault(c => c.Id == id);
+            if (contactToChange == null) throw new Exception("Contact does not exist.");
+            bool isDirty = true;
+            foreach (var item in _contactsProperties)
             {
-                int isDirty = 0;
-                foreach (var item in _contactsProperties)
+                if (item.Name == columnName)
                 {
-                    if (item.Name == columnName)
-                    {
-                        item.SetValue(contacts.First(), columnValue);
-                    }
+                    item.SetValue(contactToChange, newValue);
+                    isDirty = false;
                 }
-                if (isDirty == 0)
-                {
-                    throw new Exception("Error, the column name is incorrect");
-                }
-                else if (db.Contacts.Where(c => c.AccountId == contacts.First().AccountId
-                                        && (c.FullName == contacts.First().FullName || c.BirthDate == contacts.First().BirthDate))
-                               .Count() != 1)
-                {
-                    throw new Exception("Error, you are trying to specify already existing data.");
-                }
-                await db.SaveChangesAsync();
             }
-            else
-            {
-                throw new Exception("Uniqueness error, there are several entities.");
-            }
-
-            return contacts.First();
+            if (isDirty) throw new Exception("The column name is incorrect");
+            await db.SaveChangesAsync();
+            return contactToChange;
         }
-    }//Add, Edit
+    }//Add
 }

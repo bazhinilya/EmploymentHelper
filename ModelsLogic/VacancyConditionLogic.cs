@@ -55,37 +55,25 @@ namespace EmploymentHelper.ModelsLogic
             return db.VacancyConditions.FirstOrDefault(vc => vc.JobopeningId == jobopenings.First().Id
                                                         && vc.ConditionType == conditionType);
         }
-        public async Task<ActionResult<VacancyCondition>> EditVacancyCondition(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<VacancyCondition>> EditVacancyCondition(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var vacancyConditions = db.VacancyConditions.Where(vc => vc.Id == id);
-            if (vacancyConditions.Count() == 1)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId) throw new Exception("Invalid column value.");
+            VacancyCondition vacancyConditionToChange = db.VacancyConditions.FirstOrDefault(vc => vc.Id == id);
+            if (vacancyConditionToChange == null) throw new Exception("Vacancy condition does not exist.");
+            bool isDirty = true;
+            foreach (var item in _vacancyConditionsProperties)
             {
-                int isDirty = 0;
-                foreach (var item in _vacancyConditionsProperties)
+                if (item.Name == columnName)
                 {
-                    if (item.Name == columnName)
-                    {
-                        item.SetValue(vacancyConditions.First(), columnValue);
-                    }
+                    item.SetValue(vacancyConditionToChange, newValue);
+                    isDirty = false;
                 }
-                if (isDirty == 0)
-                {
-                    throw new Exception("Error, the column name is incorrect");
-                }
-                else if (db.VacancyConditions.Where(vc => vc.JobopeningId == vacancyConditions.First().JobopeningId
-                                                    && vc.ConditionType == vacancyConditions.First().ConditionType)
-                                             .Count() != 1)
-                {
-                    throw new Exception("Error, you are trying to specify already existing data.");
-                }
-                await db.SaveChangesAsync();
             }
-            else
-            {
-                throw new Exception("Uniqueness error, there are several VacancyConditions.");
-            }
-            return vacancyConditions.First();
+            if (isDirty) throw new Exception("The column name is incorrect");
+            await db.SaveChangesAsync();
+            return vacancyConditionToChange;
         }
-    }//Add, Edit
+    }//Add
 }

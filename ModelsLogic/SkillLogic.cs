@@ -62,35 +62,25 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return skills.First();
         }
-        public async Task<ActionResult<Skill>> EditSkill(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<Skill>> EditSkill(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var skills = db.Skills.Where(s => s.Id == id);
-            if (skills.Count() == 1)
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId) throw new Exception("Invalid column value.");
+            Skill skillToChange = db.Skills.FirstOrDefault(s => s.Id == id);
+            if (skillToChange == null) throw new Exception("Skill does not exist.");
+            bool isDirty = true;
+            foreach (var item in _skillsProperties)
             {
-                int isDirty = 0;
-                foreach (var item in _skillsProperties)
+                if (item.Name == columnName)
                 {
-                    if (item.Name == columnName)
-                    {
-                        item.SetValue(skills.First(), columnValue);
-                    }
+                    item.SetValue(skillToChange, newValue);
+                    isDirty = false;
                 }
-                if (isDirty == 0)
-                {
-                    throw new Exception("Error, the column name is incorrect");
-                }
-                else if (db.Skills.Where(s => s.Id == skills.First().Id && s.Name == skills.First().Name).Count() != 1)
-                {
-                    throw new Exception("Error, you are trying to specify already existing data.");
-                }
-                await db.SaveChangesAsync();
             }
-            else
-            {
-                throw new Exception("Uniqueness error, there are several entities.");
-            }
-            return skills.First();
+            if (isDirty) throw new Exception("The column name is incorrect");
+            await db.SaveChangesAsync();
+            return skillToChange;
         }
-    }//Add, Edit
+    }//Add
 }

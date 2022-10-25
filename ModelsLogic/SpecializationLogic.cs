@@ -44,7 +44,7 @@ namespace EmploymentHelper.ModelsLogic
         {
             await using var db = new VacancyContext();
             Specialization specializationToCheck = db.Specializations.FirstOrDefault(s => s.Code == newValue || s.Name == newValue);
-            if (specializationToCheck != null) throw new Exception("This data already exsist.");
+            if (specializationToCheck != null) throw new Exception("This specialization already exsist.");
             Specialization specializationToChange = null;
             bool isId = Guid.TryParse(columnValue, out Guid id);
             if (isId)

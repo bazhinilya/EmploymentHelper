@@ -50,14 +50,14 @@ namespace EmploymentHelper.ModelsLogic
         {
             await using var db = new VacancyContext();
             Account accountToCheck = db.Accounts.FirstOrDefault(a => a.INN == newValue || a.Name == columnName);
-            if (accountToCheck != null) throw new Exception("This data already exsist.");
+            if (accountToCheck != null) throw new Exception("This account already exsist.");
             Account accountToChange = null;
             bool isId = Guid.TryParse(columnValue, out Guid id);
-            bool isInn = InnerLogic.IsINN(columnValue);
             if (isId)
             {
                 accountToChange = db.Accounts.FirstOrDefault(a => a.Id == id);
             }
+            bool isInn = InnerLogic.IsINN(columnValue);
             if (isInn)
             {
                 accountToChange = db.Accounts.FirstOrDefault(a => a.INN == columnValue);
@@ -66,7 +66,7 @@ namespace EmploymentHelper.ModelsLogic
             {
                 accountToChange = db.Accounts.FirstOrDefault(a => a.Name == columnValue);
             }
-            if (accountToChange == null) throw new Exception("Account does not exist.");
+            if (accountToChange == null) throw new Exception("This account does not exist.");
             bool isDirty = true;
             foreach (var item in _accountsProperties)
             {

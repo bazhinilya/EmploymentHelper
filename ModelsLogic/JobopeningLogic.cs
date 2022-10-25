@@ -85,37 +85,29 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return jobopenings.First();
         }
-        public async Task<ActionResult<Jobopening>> EditJobopening(Guid id, string columnName, string columnValue)
+        public async Task<ActionResult<Jobopening>> EditJobopening(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            var jobopenings = db.Jobopenings.Where(j => j.Id == id);
-            if (jobopenings.Count() == 1)
+            Jobopening jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Name == newValue || j.Link == newValue);
+            if (jobopeningToCheck != null) throw new Exception("This jobopening already exsist.");
+            //добавить методы поиска по Name и LINK, вынести метод с определением LINK
+
+            bool isId = Guid.TryParse(columnValue, out Guid id);
+            if (isId) throw new Exception("Invalid column value.");
+            Jobopening jobopeningToChange = db.Jobopenings.FirstOrDefault(j => j.Id == id);
+            if (jobopeningToChange == null) throw new Exception("Jobopening does not exist.");
+            bool isDirty = true;
+            foreach (var item in _jobopeningsProperties)
             {
-                int isDirty = 0;
-                foreach (var item in _jobopeningsProperties)
+                if (item.Name == columnName)
                 {
-                    if (item.Name == columnName)
-                    {
-                        item.SetValue(jobopenings.First(), columnValue);
-                    }
+                    item.SetValue(jobopeningToChange, newValue);
+                    isDirty = false;
                 }
-                if (isDirty == 0)
-                {
-                    throw new Exception("Error, the column name is incorrect");
-                }
-                else if (db.Jobopenings.Where(j => j.AccountId == jobopenings.First().AccountId
-                                                && j.Name == jobopenings.First().Name)
-                                       .Count() != 1)
-                {
-                    throw new Exception("Error, you are trying to specify already existing data.");
-                }
-                await db.SaveChangesAsync();
             }
-            else
-            {
-                throw new Exception("Uniqueness error, there are several entities.");
-            }
-            return jobopenings.First();
+            if (isDirty) throw new Exception("The column name is incorrect");
+            await db.SaveChangesAsync();
+            return jobopeningToChange;
         }
     }
-}//Add, Edit
+}//Add
