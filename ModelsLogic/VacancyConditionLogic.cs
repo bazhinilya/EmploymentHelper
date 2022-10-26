@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using System.Reflection;
+using EmploymentHelper.BLogic;
 
 namespace EmploymentHelper.ModelsLogic
 {
@@ -34,26 +35,35 @@ namespace EmploymentHelper.ModelsLogic
             string conditionValue)
         {
             await using var db = new VacancyContext();
-            var jobopenings = db.Jobopenings.Where(j => j.Id == Guid.Parse(jobopeningColumnValue) || j.Name == jobopeningColumnValue);
-            var vacancyConditions = db.VacancyConditions.Where(vc => vc.ConditionType == conditionType
-                                                                && vc.JobopeningId == jobopenings.First().Id);
-            if (jobopenings.Count() == 1 && vacancyConditions.Count() == 0)
+            Jobopening jobopeningToCheck = null;
+            bool isId = Guid.TryParse(jobopeningColumnValue, out Guid id);
+            if (isId)
             {
-                db.VacancyConditions.Add(new VacancyCondition
-                {
-                    Id = Guid.NewGuid(),
-                    ConditionType = conditionType,
-                    ConditionValue = conditionValue,
-                    JobopeningId = jobopenings.First().Id
-                });
+                jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Id == id);
             }
-            else
+            bool isLink = InnerLogic.IsLink(jobopeningColumnValue);
+            if (isLink)
             {
-                throw new Exception("Uniqueness error. This vacancy condition already exists.");
+                jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Link == jobopeningColumnValue);
             }
+            if (!isId && !isLink)
+            {
+                jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Name == jobopeningColumnValue);
+            }
+            if (jobopeningToCheck == null) throw new Exception("Jobopening does not exist.");
+            VacancyCondition vacancyConditionToCheck = db.VacancyConditions
+                                                         .FirstOrDefault(vc => vc.ConditionType == conditionType && vc.JobopeningId == jobopeningToCheck.Id);
+            if (vacancyConditionToCheck != null) throw new Exception("This vacancy condition already exist.");
+            VacancyCondition vacancyConditionToCreate = new()
+            {
+                Id = Guid.NewGuid(),
+                ConditionType = conditionType,
+                ConditionValue = conditionValue,
+                JobopeningId = jobopeningToCheck.Id
+            };
+            db.VacancyConditions.Add(vacancyConditionToCreate);
             await db.SaveChangesAsync();
-            return db.VacancyConditions.FirstOrDefault(vc => vc.JobopeningId == jobopenings.First().Id
-                                                        && vc.ConditionType == conditionType);
+            return vacancyConditionToCreate;
         }
         public async Task<ActionResult<VacancyCondition>> EditVacancyCondition(string columnValue, string columnName, string newValue)
         {
@@ -75,5 +85,5 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return vacancyConditionToChange;
         }
-    }//Add
+    }
 }

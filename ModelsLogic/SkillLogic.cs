@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using System.Reflection;
+using EmploymentHelper.BLogic;
 
 namespace EmploymentHelper.ModelsLogic
 {
@@ -32,35 +33,29 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Skill>> AddSkill(string jobopeningColumnValue, string name)
         {
             await using var db = new VacancyContext();
-            var jobopenings = db.Jobopenings.Where(j => j.Name == jobopeningColumnValue);
-            var skills = db.Skills.Where(s => s.Name == name);
-            if (jobopenings.Count() == 1 && skills.Count() == 0)
+            Jobopening jobopeningToCheck = null;
+            bool isId = Guid.TryParse(jobopeningColumnValue, out Guid id);
+            if (isId)
             {
-                Guid skillId = Guid.NewGuid();
-                db.Skills.Add(new Skill { Id = skillId, Name = name });
-                await db.SaveChangesAsync();
-                var jobopeningsSkills = db.JobopeningsSkills.Where(js => js.JobopeningId == jobopenings.First().Id
-                                                                    && js.SkillId == skillId);
-                if (jobopeningsSkills.Count() == 0)
-                {
-                    db.JobopeningsSkills.Add(new JobopeningSkill
-                    {
-                        Id = Guid.NewGuid(),
-                        JobopeningId = jobopenings.First().Id,
-                        SkillId = skillId
-                    });
-                }
-                else
-                {
-                    throw new Exception("Link error. Their number exceeds the allowed value.");
-                }
+                jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Id == id);
             }
-            else
+            bool isLink = InnerLogic.IsLink(jobopeningColumnValue);
+            if (isLink)
             {
-                throw new Exception("Uniqueness error. This jobopening already exists.");
+                jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Link == jobopeningColumnValue);
             }
+            if (!isId && !isLink)
+            {
+                jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Name == jobopeningColumnValue);
+            }
+            if (jobopeningToCheck == null) throw new Exception("Jobopening does not exist.");
+            Guid skillId = Guid.NewGuid();
+            Skill skillToCreate = new() { Id = skillId, Name = name };
+            db.Skills.Add(skillToCreate);
+            JobopeningSkill jobopeningSkillToCreate = new() { Id = Guid.NewGuid(), JobopeningId = jobopeningToCheck.Id, SkillId = skillId };
+            db.JobopeningsSkills.Add(jobopeningSkillToCreate);
             await db.SaveChangesAsync();
-            return skills.First();
+            return skillToCreate;
         }
         public async Task<ActionResult<Skill>> EditSkill(string columnValue, string columnName, string newValue)
         {
@@ -82,5 +77,5 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return skillToChange;
         }
-    }//Add
+    }
 }

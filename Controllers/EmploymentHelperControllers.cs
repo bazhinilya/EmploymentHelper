@@ -180,12 +180,11 @@ namespace EmploymentHelper
 
         [HttpPost("Jobopenings/Add")]
         public async Task<ActionResult<Jobopening>> AddJobopening([FromQuery] string specializationColumnValue, 
-            [FromQuery] string vacancyPlaceColumnValue, [FromQuery] string name, [FromQuery] string link, 
-            [FromQuery] string accountName)
+            [FromQuery] string vacancyPlaceColumnValue, [FromQuery] string accountColumnValue, [FromQuery] string name, [FromQuery] string link)
         {
             try
             {
-                return await _jobopeningLogic.AddJobopening(specializationColumnValue, vacancyPlaceColumnValue, name, link, accountName);
+                return await _jobopeningLogic.AddJobopening(specializationColumnValue, vacancyPlaceColumnValue, accountColumnValue, name, link);
             }
             catch (Exception ex)
             {
@@ -372,7 +371,6 @@ namespace EmploymentHelper
             }
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         [HttpGet("AllSkills/Get")]
         public async Task<ActionResult<IEnumerable<AllSkill>>> GetAllSkillsView([FromQuery] string columnValue = null)

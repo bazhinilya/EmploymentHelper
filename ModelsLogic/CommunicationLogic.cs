@@ -33,31 +33,31 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Communication>> AddCommunication(string contactColumnValue, string commType, string commValue)
         {
             await using var db = new VacancyContext();
-            Contact contactToFind = null;
+            Contact contactToCheck = null;
             bool isBirthDate = DateTime.TryParse(contactColumnValue, out DateTime birthDate);
             if (isBirthDate)
             {
-                contactToFind = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate);
+                contactToCheck = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate);
             }
             bool isId = Guid.TryParse(contactColumnValue, out Guid id);
             if (isId)
             {
-                contactToFind = db.Contacts.FirstOrDefault(c => c.Id == id);
+                contactToCheck = db.Contacts.FirstOrDefault(c => c.Id == id);
             }
             if (!isId && !isBirthDate)
             {
-                contactToFind = db.Contacts.FirstOrDefault(c => c.FullName == contactColumnValue || c.LastName == contactColumnValue);
+                contactToCheck = db.Contacts.FirstOrDefault(c => c.LastName == contactColumnValue);
             }
-            if (contactToFind == null) throw new Exception("Contact does not exist.");
-            Communication communicationToCheck = db.Communications.FirstOrDefault(c => c.CommType == commType && c.ContactId == id);
+            if (contactToCheck == null) throw new Exception("Contact does not exist.");
+            Communication communicationToCheck = db.Communications.FirstOrDefault(c => c.CommType == commType && c.ContactId == contactToCheck.Id);
             if (communicationToCheck != null) throw new Exception("This communication already exist.");
             Communication communicationToCreate = new()
             {
                 Id = Guid.NewGuid(),
                 CommType = commType,
                 CommValue = commValue,
-                AccountId = contactToFind.AccountId,
-                ContactId = contactToFind.Id
+                AccountId = contactToCheck.AccountId,
+                ContactId = contactToCheck.Id
             };
             db.Communications.Add(communicationToCreate);
             await db.SaveChangesAsync();

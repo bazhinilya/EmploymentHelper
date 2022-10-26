@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using System.Reflection;
+using EmploymentHelper.BLogic;
 
 namespace EmploymentHelper.ModelsLogic
 {
-    public class ContactLogic
+    public class ContactLogic 
     {
         private readonly PropertyInfo[] _contactsProperties;
         public ContactLogic() { _contactsProperties = typeof(Account).GetProperties(); }
@@ -38,41 +39,44 @@ namespace EmploymentHelper.ModelsLogic
             return db.Contacts.Where(c => c.LastName.Contains(columnValue)
                                         || c.FirstName.Contains(columnValue)
                                         || c.MiddleName.Contains(columnValue)
-                                        || c.FullName.Contains(columnValue))
+                                        /*|| c.FullName.Contains(columnValue)*/)
                               .ToList() ?? throw new Exception("Invalid column value.");
         }
-        public async Task<ActionResult<Contact>> AddContact(string accountName, string lastName, string firstName,
+        public async Task<ActionResult<Contact>> AddContact(string accountColumnValue, string lastName, string firstName,
             bool gender, DateTime? birthDate, string middleName = null)
         {
             await using var db = new VacancyContext();
-            var accounts = db.Accounts.Where(a => a.Name == accountName);
-            var contacts = db.Contacts.Where(c => c.AccountId == accounts.First().Id && c.FirstName == firstName
-                                            && c.LastName == lastName && c.Gender == gender && c.BirthDate == birthDate);
-            if (accounts.Count() == 0)
+            Account accountToCheck = null;
+            bool isId = Guid.TryParse(accountColumnValue, out Guid id);
+            if (isId)
             {
-                db.Accounts.Add(new Account { Id = Guid.NewGuid(), Name = accountName });
-                await db.SaveChangesAsync();
+                accountToCheck = db.Accounts.FirstOrDefault(a => a.Id == id);
             }
-            if (accounts.Count() == 1 && contacts.Count() == 0)
+            bool isInn = InnerLogic.IsINN(accountColumnValue);
+            if (isInn)
             {
-                db.Contacts.Add(new Contact
-                {
-                    Id = Guid.NewGuid(),
-                    LastName = lastName,
-                    FirstName = firstName,
-                    MiddleName = middleName,
-                    FullName = middleName == null ? $"{lastName} {firstName}" : $"{lastName} {firstName} {middleName}",
-                    Gender = gender,
-                    BirthDate = birthDate,
-                    AccountId = accounts.First().Id
-                });
+                accountToCheck = db.Accounts.FirstOrDefault(a => a.INN == accountColumnValue);
             }
-            else
+            if (!isId && !isInn)
             {
-                throw new Exception("Uniqueness error. This contact already exists.");
+                accountToCheck = db.Accounts.FirstOrDefault(a => a.Name == accountColumnValue);
             }
+            if (accountToCheck == null) throw new Exception("Account does not exist.");
+            Contact contactToCheck = db.Contacts.FirstOrDefault(c => c.LastName == lastName && c.AccountId == accountToCheck.Id);
+            if (contactToCheck != null) throw new Exception("This contact already exist.");
+            Contact contactToCreate = new()
+            {
+                Id = Guid.NewGuid(),
+                LastName = lastName,
+                FirstName = firstName,
+                MiddleName = middleName,
+                Gender = gender,
+                BirthDate = birthDate,
+                AccountId = accountToCheck.Id
+            };
+            db.Contacts.Add(contactToCreate);
             await db.SaveChangesAsync();
-            return contacts.First();
+            return contactToCreate;
         }
         public async Task<ActionResult<Contact>> EditContact(string columnValue, string columnName, string newValue)
         {
@@ -94,5 +98,5 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return contactToChange;
         }
-    }//Add
+    }
 }
