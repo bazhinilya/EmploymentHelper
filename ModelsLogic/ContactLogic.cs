@@ -36,14 +36,10 @@ namespace EmploymentHelper.ModelsLogic
             {
                 return db.Contacts.Where(c => c.Gender == gender).ToList() ?? throw new Exception("Invalid column value.");
             }
-            return db.Contacts.Where(c => c.LastName.Contains(columnValue)
-                                        || c.FirstName.Contains(columnValue)
-                                        || c.MiddleName.Contains(columnValue)
-                                        /*|| c.FullName.Contains(columnValue)*/)
-                              .ToList() ?? throw new Exception("Invalid column value.");
+            return db.Contacts.Where(c => c.FullName.Contains(columnValue)).ToList() ?? throw new Exception("Invalid column value.");
         }
-        public async Task<ActionResult<Contact>> AddContact(string accountColumnValue, string lastName, string firstName,
-            bool gender, DateTime? birthDate, string middleName = null)
+        public async Task<ActionResult<Contact>> AddContact(string accountColumnValue, string fullName,
+            bool gender, DateTime? birthDate)
         {
             await using var db = new VacancyContext();
             Account accountToCheck = null;
@@ -62,14 +58,12 @@ namespace EmploymentHelper.ModelsLogic
                 accountToCheck = db.Accounts.FirstOrDefault(a => a.Name == accountColumnValue);
             }
             if (accountToCheck == null) throw new Exception("Account does not exist.");
-            Contact contactToCheck = db.Contacts.FirstOrDefault(c => c.LastName == lastName && c.AccountId == accountToCheck.Id);
+            Contact contactToCheck = db.Contacts.FirstOrDefault(c => c.FullName == fullName && c.AccountId == accountToCheck.Id);
             if (contactToCheck != null) throw new Exception("This contact already exist.");
             Contact contactToCreate = new()
             {
                 Id = Guid.NewGuid(),
-                LastName = lastName,
-                FirstName = firstName,
-                MiddleName = middleName,
+                FullName = fullName,
                 Gender = gender,
                 BirthDate = birthDate,
                 AccountId = accountToCheck.Id
@@ -81,9 +75,21 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Contact>> EditContact(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
+            Contact contactToChange = null; 
+            bool isBirthDate = DateTime.TryParse(columnValue, out DateTime birthDate);
+            if (isBirthDate)
+            {
+                contactToChange = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate);
+            }
             bool isId = Guid.TryParse(columnValue, out Guid id);
-            if (isId) throw new Exception("Invalid column value.");
-            Contact contactToChange = db.Contacts.FirstOrDefault(c => c.Id == id);
+            if (isId)
+            {
+                contactToChange = db.Contacts.FirstOrDefault(c => c.Id == id);
+            }
+            if (!isId && !isBirthDate)
+            {
+                contactToChange = db.Contacts.FirstOrDefault(c => c.FullName == columnValue);
+            }
             if (contactToChange == null) throw new Exception("Contact does not exist.");
             bool isDirty = true;
             foreach (var item in _contactsProperties)

@@ -136,13 +136,12 @@ namespace EmploymentHelper
         }
 
         [HttpPost("Contacts/Add")]
-        public async Task<ActionResult<Contact>> AddContact([FromQuery] string accountName, [FromQuery] string lastName, 
-            [FromQuery] string firstName, [FromQuery] bool gender, [FromQuery] DateTime? birthDate, 
-            [FromQuery] string middleName = null)
+        public async Task<ActionResult<Contact>> AddContact([FromQuery] string accountName, [FromQuery] string fullName, [FromQuery] bool gender, 
+            [FromQuery] DateTime? birthDate)
         {
             try
             {
-                return await _contactLogic.AddContact(accountName, lastName, firstName, gender, birthDate, middleName);
+                return await _contactLogic.AddContact(accountName, fullName, gender, birthDate);
             }
             catch (Exception ex)
             {

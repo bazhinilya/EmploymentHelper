@@ -46,7 +46,7 @@ namespace EmploymentHelper.ModelsLogic
             }
             if (!isId && !isBirthDate)
             {
-                contactToCheck = db.Contacts.FirstOrDefault(c => c.LastName == contactColumnValue);
+                contactToCheck = db.Contacts.FirstOrDefault(c => c.FullName == contactColumnValue);
             }
             if (contactToCheck == null) throw new Exception("Contact does not exist.");
             Communication communicationToCheck = db.Communications.FirstOrDefault(c => c.CommType == commType && c.ContactId == contactToCheck.Id);
