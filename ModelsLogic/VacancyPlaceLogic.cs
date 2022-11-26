@@ -1,11 +1,12 @@
-﻿using EmploymentHelper.Models.Context;
+﻿using EmploymentHelper.BLogic;
+using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
@@ -45,21 +46,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             VacancyPlace vacancyPlaceToCheck = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == newValue || vp.Name == newValue);
             if (vacancyPlaceToCheck != null) throw new Exception("This data already exsist.");
-            VacancyPlace vacancyPlaceToChange = null;
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            if (isId)
-            {
-                vacancyPlaceToChange = db.VacancyPlaces.FirstOrDefault(vp => vp.Id == id);
-            }
-            if (columnValue.Length <= 4)
-            {
-                vacancyPlaceToChange = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == columnValue || vp.Name == columnValue);
-            }
-            if (columnValue.Length > 4)
-            {
-                vacancyPlaceToChange = db.VacancyPlaces.FirstOrDefault(vp => vp.Name == columnValue || vp.Code == columnValue);
-            }
-            if (vacancyPlaceToChange == null) throw new Exception("Vacancy places does not exist.");
+            VacancyPlace vacancyPlaceToChange = InnerLogic.GetVacancyPlace(columnValue, db);
             bool isDirty = true;
             foreach (var item in _vacancyPlacesProperties)
             {

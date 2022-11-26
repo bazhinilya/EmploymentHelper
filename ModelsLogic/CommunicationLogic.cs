@@ -1,5 +1,6 @@
-﻿using EmploymentHelper.Models;
-using EmploymentHelper.Models.Context;
+﻿using EmploymentHelper.BLogic;
+using EmploymentHelper.Context;
+using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -33,22 +34,7 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Communication>> AddCommunication(string contactColumnValue, string commType, string commValue)
         {
             await using var db = new VacancyContext();
-            Contact contactToCheck = null;
-            bool isBirthDate = DateTime.TryParse(contactColumnValue, out DateTime birthDate);
-            if (isBirthDate)
-            {
-                contactToCheck = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate);
-            }
-            bool isId = Guid.TryParse(contactColumnValue, out Guid id);
-            if (isId)
-            {
-                contactToCheck = db.Contacts.FirstOrDefault(c => c.Id == id);
-            }
-            if (!isId && !isBirthDate)
-            {
-                contactToCheck = db.Contacts.FirstOrDefault(c => c.FullName == contactColumnValue);
-            }
-            if (contactToCheck == null) throw new Exception("Contact does not exist.");
+            Contact contactToCheck = InnerLogic.GetContact(contactColumnValue, db);
             Communication communicationToCheck = db.Communications.FirstOrDefault(c => c.CommType == commType && c.ContactId == contactToCheck.Id);
             if (communicationToCheck != null) throw new Exception("This communication already exist.");
             Communication communicationToCreate = new()

@@ -1,12 +1,12 @@
-﻿using EmploymentHelper.Models.Context;
+﻿using EmploymentHelper.BLogic;
+using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EmploymentHelper.BLogic;
+using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
@@ -42,22 +42,7 @@ namespace EmploymentHelper.ModelsLogic
             bool gender, DateTime? birthDate)
         {
             await using var db = new VacancyContext();
-            Account accountToCheck = null;
-            bool isId = Guid.TryParse(accountColumnValue, out Guid id);
-            if (isId)
-            {
-                accountToCheck = db.Accounts.FirstOrDefault(a => a.Id == id);
-            }
-            bool isInn = InnerLogic.IsINN(accountColumnValue);
-            if (isInn)
-            {
-                accountToCheck = db.Accounts.FirstOrDefault(a => a.INN == accountColumnValue);
-            }
-            if (!isId && !isInn)
-            {
-                accountToCheck = db.Accounts.FirstOrDefault(a => a.Name == accountColumnValue);
-            }
-            if (accountToCheck == null) throw new Exception("Account does not exist.");
+            Account accountToCheck = InnerLogic.GetAccount(accountColumnValue, db);
             Contact contactToCheck = db.Contacts.FirstOrDefault(c => c.FullName == fullName && c.AccountId == accountToCheck.Id);
             if (contactToCheck != null) throw new Exception("This contact already exist.");
             Contact contactToCreate = new()
@@ -75,22 +60,7 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Contact>> EditContact(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            Contact contactToChange = null; 
-            bool isBirthDate = DateTime.TryParse(columnValue, out DateTime birthDate);
-            if (isBirthDate)
-            {
-                contactToChange = db.Contacts.FirstOrDefault(c => c.BirthDate == birthDate);
-            }
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            if (isId)
-            {
-                contactToChange = db.Contacts.FirstOrDefault(c => c.Id == id);
-            }
-            if (!isId && !isBirthDate)
-            {
-                contactToChange = db.Contacts.FirstOrDefault(c => c.FullName == columnValue);
-            }
-            if (contactToChange == null) throw new Exception("Contact does not exist.");
+            Contact contactToChange = InnerLogic.GetContact(columnValue, db);
             bool isDirty = true;
             foreach (var item in _contactsProperties)
             {
@@ -104,5 +74,7 @@ namespace EmploymentHelper.ModelsLogic
             await db.SaveChangesAsync();
             return contactToChange;
         }
+
+        
     }
 }

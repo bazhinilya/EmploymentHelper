@@ -1,6 +1,6 @@
 ﻿using EmploymentHelper.BLogic;
+using EmploymentHelper.Context;
 using EmploymentHelper.Models;
-using EmploymentHelper.Models.Context;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -51,22 +51,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             Account accountToCheck = db.Accounts.FirstOrDefault(a => a.INN == newValue || a.Name == columnName);
             if (accountToCheck != null) throw new Exception("This account already exsist.");
-            Account accountToChange = null;
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            if (isId)
-            {
-                accountToChange = db.Accounts.FirstOrDefault(a => a.Id == id);
-            }
-            bool isInn = InnerLogic.IsINN(columnValue);
-            if (isInn)
-            {
-                accountToChange = db.Accounts.FirstOrDefault(a => a.INN == columnValue);
-            }
-            if (!isInn && !isId)
-            {
-                accountToChange = db.Accounts.FirstOrDefault(a => a.Name == columnValue);
-            }
-            if (accountToChange == null) throw new Exception("This account does not exist.");
+            Account accountToChange = InnerLogic.GetAccount(columnValue, db);
             bool isDirty = true;
             foreach (var item in _accountsProperties)
             {

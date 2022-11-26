@@ -1,6 +1,6 @@
 ﻿using EmploymentHelper.BLogic;
+using EmploymentHelper.Context;
 using EmploymentHelper.Models;
-using EmploymentHelper.Models.Context;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -41,52 +41,9 @@ namespace EmploymentHelper.ModelsLogic
             string accountColumnValue, string name, string link)
         {
             await using var db = new VacancyContext();
-            Specialization specializationToCheck = null;
-            bool isId = Guid.TryParse(specializationColumnValue, out Guid id);
-            if (isId)
-            {
-                specializationToCheck = db.Specializations.FirstOrDefault(s => s.Id == id);
-            }
-            if (specializationColumnValue.Length <= 4)
-            {
-                specializationToCheck = db.Specializations.FirstOrDefault(s => s.Code == specializationColumnValue || s.Name == specializationColumnValue);
-            }
-            if (specializationColumnValue.Length > 4)
-            {
-                specializationToCheck = db.Specializations.FirstOrDefault(s => s.Name == specializationColumnValue || s.Code == specializationColumnValue);
-            }
-            if (specializationToCheck == null) throw new Exception("Specialization does not exist.");
-            VacancyPlace vacancyPlaceToCheck = null;
-            bool isVacancyPlaceId = Guid.TryParse(vacancyPlaceColumnValue, out Guid vacancyPlaceId);
-            if (isId)
-            {
-                vacancyPlaceToCheck = db.VacancyPlaces.FirstOrDefault(vp => vp.Id == vacancyPlaceId);
-            }
-            if (vacancyPlaceColumnValue.Length <= 4)
-            {
-                vacancyPlaceToCheck = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == vacancyPlaceColumnValue || vp.Name == vacancyPlaceColumnValue);
-            }
-            if (vacancyPlaceColumnValue.Length > 4)
-            {
-                vacancyPlaceToCheck = db.VacancyPlaces.FirstOrDefault(vp => vp.Name == vacancyPlaceColumnValue || vp.Code == vacancyPlaceColumnValue);
-            }
-            if (vacancyPlaceToCheck == null) throw new Exception("Vacancy places does not exist.");
-            Account accountToCheck = null;
-            bool isAccountId = Guid.TryParse(accountColumnValue, out Guid accountId);
-            if (isAccountId)
-            {
-                accountToCheck = db.Accounts.FirstOrDefault(a => a.Id == id);
-            }
-            bool isInn = InnerLogic.IsINN(accountColumnValue);
-            if (isInn)
-            {
-                accountToCheck = db.Accounts.FirstOrDefault(a => a.INN == accountColumnValue);
-            }
-            if (!isInn && !isId)
-            {
-                accountToCheck = db.Accounts.FirstOrDefault(a => a.Name == accountColumnValue);
-            }
-            if (accountToCheck == null) throw new Exception("Account does not exist.");
+            Specialization specializationToCheck = InnerLogic.GetSpecialization(specializationColumnValue, db);
+            VacancyPlace vacancyPlaceToCheck = InnerLogic.GetVacancyPlace(vacancyPlaceColumnValue, db);
+            Account accountToCheck = InnerLogic.GetAccount(accountColumnValue, db);
             Jobopening jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Name == name || j.Link == link);
             if (jobopeningToCheck != null) throw new Exception("This jobopening already exsist.");
             Guid jobopeningId = Guid.NewGuid();
@@ -114,22 +71,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             Jobopening jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Name == newValue || j.Link == newValue);
             if (jobopeningToCheck != null) throw new Exception("This jobopening already exsist.");
-            Jobopening jobopeningToChange = null;
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            if (isId)
-            {
-                jobopeningToChange = db.Jobopenings.FirstOrDefault(j => j.Id == id);
-            }
-            bool isLink = InnerLogic.IsLink(columnValue);
-            if (isLink)
-            {
-                jobopeningToChange = db.Jobopenings.FirstOrDefault(j => j.Link == columnValue);
-            }
-            if (!isId && !isLink)
-            {
-                jobopeningToChange = db.Jobopenings.FirstOrDefault(j => j.Name == columnValue);
-            }
-            if (jobopeningToChange == null) throw new Exception("Jobopening does not exist.");
+            Jobopening jobopeningToChange = InnerLogic.GetJobopening(columnValue, db);
             bool isDirty = true;
             foreach (var item in _jobopeningsProperties)
             {

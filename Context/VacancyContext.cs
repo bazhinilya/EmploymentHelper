@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 
-namespace EmploymentHelper.Models.Context
+namespace EmploymentHelper.Context
 {
     public class VacancyContext : DbContext
     {
@@ -27,6 +27,7 @@ namespace EmploymentHelper.Models.Context
             .AddJsonFile("appsettings.json")
             .Build();
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("MSSQLConn"));
+            optionsBuilder.LogTo(Console.WriteLine);
         }
     }
 }

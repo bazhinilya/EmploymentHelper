@@ -1,10 +1,10 @@
-﻿using EmploymentHelper.Models.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EmploymentHelper.ModelsLogic
 {
@@ -27,6 +27,5 @@ namespace EmploymentHelper.ModelsLogic
             return db.AllSkills.Where(a => a.LevelType.Contains(columnValue) || a.LevelName.Contains(columnValue) || a.Skill.Contains(columnValue))
                                .ToList() ?? throw new Exception("Invalid column value.");
         }
-
     }
 }

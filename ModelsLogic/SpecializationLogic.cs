@@ -1,5 +1,6 @@
-﻿using EmploymentHelper.Models;
-using EmploymentHelper.Models.Context;
+﻿using EmploymentHelper.BLogic;
+using EmploymentHelper.Context;
+using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace EmploymentHelper.ModelsLogic
             }
             if (Guid.TryParse(columnValue, out Guid id))
             {
-                return new List<Specialization> 
+                return new List<Specialization>
                 {
                     db.Specializations.FirstOrDefault(s => s.Id == id) ?? throw new Exception("Invalid column value.")
                 };
@@ -35,7 +36,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             Specialization specializationToCheck = db.Specializations.FirstOrDefault(s => s.Code == code || s.Name == name);
             if (specializationToCheck != null) throw new Exception("This specialization already exist.");
-            Specialization specializationToCreate = new () { Id = Guid.NewGuid(), Name = name, Code = code };
+            Specialization specializationToCreate = new() { Id = Guid.NewGuid(), Name = name, Code = code };
             db.Specializations.Add(specializationToCreate);
             await db.SaveChangesAsync();
             return specializationToCreate;
@@ -45,21 +46,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             Specialization specializationToCheck = db.Specializations.FirstOrDefault(s => s.Code == newValue || s.Name == newValue);
             if (specializationToCheck != null) throw new Exception("This specialization already exsist.");
-            Specialization specializationToChange = null;
-            bool isId = Guid.TryParse(columnValue, out Guid id);
-            if (isId)
-            {
-                specializationToChange = db.Specializations.FirstOrDefault(s => s.Id == id);
-            }
-            if (columnValue.Length <= 4)
-            {
-                specializationToChange = db.Specializations.FirstOrDefault(s => s.Code == columnValue || s.Name == columnValue);
-            }
-            if (columnValue.Length > 4)
-            {
-                specializationToChange = db.Specializations.FirstOrDefault(s => s.Name == columnValue || s.Code == columnValue);
-            }
-            if (specializationToChange == null) throw new Exception("Specialization does not exist.");
+            Specialization specializationToChange = InnerLogic.GetSpecialization(columnValue, db);
             bool isDirty = true;
             foreach (var item in _specializationsProperties)
             {
