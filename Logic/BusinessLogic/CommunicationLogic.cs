@@ -1,5 +1,4 @@
-﻿using EmploymentHelper.BLogic;
-using EmploymentHelper.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EmploymentHelper.ModelsLogic
+namespace EmploymentHelper.Logic.BusinessLogic
 {
     public class CommunicationLogic
     {
@@ -34,7 +33,7 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Communication>> AddCommunication(string contactColumnValue, string commType, string commValue)
         {
             await using var db = new VacancyContext();
-            Contact contactToCheck = InnerLogic.GetContact(contactColumnValue, db);
+            Contact contactToCheck = CommonLogic.GetContact(contactColumnValue, db);
             Communication communicationToCheck = db.Communications.FirstOrDefault(c => c.CommType == commType && c.ContactId == contactToCheck.Id);
             if (communicationToCheck != null) throw new Exception("This communication already exist.");
             Communication communicationToCreate = new()

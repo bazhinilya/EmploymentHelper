@@ -1,5 +1,4 @@
-﻿using EmploymentHelper.BLogic;
-using EmploymentHelper.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EmploymentHelper.ModelsLogic
+namespace EmploymentHelper.Logic.BusinessLogic
 {
     public class JobopeningLogic
     {
@@ -28,7 +27,7 @@ namespace EmploymentHelper.ModelsLogic
                     db.Jobopenings.FirstOrDefault(j => j.Id == id) ?? throw new Exception("Invalid column value.")
                 };
             }
-            if (InnerLogic.IsLink(columnValue))
+            if (CommonLogic.IsLink(columnValue))
             {
                 return new List<Jobopening>
                 {
@@ -41,9 +40,9 @@ namespace EmploymentHelper.ModelsLogic
             string accountColumnValue, string name, string link)
         {
             await using var db = new VacancyContext();
-            Specialization specializationToCheck = InnerLogic.GetSpecialization(specializationColumnValue, db);
-            VacancyPlace vacancyPlaceToCheck = InnerLogic.GetVacancyPlace(vacancyPlaceColumnValue, db);
-            Account accountToCheck = InnerLogic.GetAccount(accountColumnValue, db);
+            Specialization specializationToCheck = CommonLogic.GetSpecialization(specializationColumnValue, db);
+            VacancyPlace vacancyPlaceToCheck = CommonLogic.GetVacancyPlace(vacancyPlaceColumnValue, db);
+            Account accountToCheck = CommonLogic.GetAccount(accountColumnValue, db);
             Jobopening jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Name == name || j.Link == link);
             if (jobopeningToCheck != null) throw new Exception("This jobopening already exsist.");
             Guid jobopeningId = Guid.NewGuid();
@@ -71,7 +70,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             Jobopening jobopeningToCheck = db.Jobopenings.FirstOrDefault(j => j.Name == newValue || j.Link == newValue);
             if (jobopeningToCheck != null) throw new Exception("This jobopening already exsist.");
-            Jobopening jobopeningToChange = InnerLogic.GetJobopening(columnValue, db);
+            Jobopening jobopeningToChange = CommonLogic.GetJobopening(columnValue, db);
             bool isDirty = true;
             foreach (var item in _jobopeningsProperties)
             {

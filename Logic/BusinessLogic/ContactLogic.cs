@@ -1,5 +1,4 @@
-﻿using EmploymentHelper.BLogic;
-using EmploymentHelper.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EmploymentHelper.ModelsLogic
+namespace EmploymentHelper.Logic.BusinessLogic
 {
-    public class ContactLogic 
+    public class ContactLogic
     {
         private readonly PropertyInfo[] _contactsProperties;
         public ContactLogic() { _contactsProperties = typeof(Account).GetProperties(); }
@@ -42,7 +41,7 @@ namespace EmploymentHelper.ModelsLogic
             bool gender, DateTime? birthDate)
         {
             await using var db = new VacancyContext();
-            Account accountToCheck = InnerLogic.GetAccount(accountColumnValue, db);
+            Account accountToCheck = CommonLogic.GetAccount(accountColumnValue, db);
             Contact contactToCheck = db.Contacts.FirstOrDefault(c => c.FullName == fullName && c.AccountId == accountToCheck.Id);
             if (contactToCheck != null) throw new Exception("This contact already exist.");
             Contact contactToCreate = new()
@@ -60,7 +59,7 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Contact>> EditContact(string columnValue, string columnName, string newValue)
         {
             await using var db = new VacancyContext();
-            Contact contactToChange = InnerLogic.GetContact(columnValue, db);
+            Contact contactToChange = CommonLogic.GetContact(columnValue, db);
             bool isDirty = true;
             foreach (var item in _contactsProperties)
             {
@@ -75,6 +74,6 @@ namespace EmploymentHelper.ModelsLogic
             return contactToChange;
         }
 
-        
+
     }
 }

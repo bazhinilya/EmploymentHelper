@@ -1,5 +1,4 @@
-﻿using EmploymentHelper.BLogic;
-using EmploymentHelper.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,11 +7,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EmploymentHelper.ModelsLogic
+namespace EmploymentHelper.Logic.BusinessLogic
 {
     public class VacancyPlaceLogic
     {
-        private readonly PropertyInfo[] _vacancyPlacesProperties; 
+        private readonly PropertyInfo[] _vacancyPlacesProperties;
         public VacancyPlaceLogic() { _vacancyPlacesProperties = typeof(Account).GetProperties(); }
         public async Task<ActionResult<IEnumerable<VacancyPlace>>> GetVacancyPlaces(string columnValue = null)
         {
@@ -46,7 +45,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             VacancyPlace vacancyPlaceToCheck = db.VacancyPlaces.FirstOrDefault(vp => vp.Code == newValue || vp.Name == newValue);
             if (vacancyPlaceToCheck != null) throw new Exception("This data already exsist.");
-            VacancyPlace vacancyPlaceToChange = InnerLogic.GetVacancyPlace(columnValue, db);
+            VacancyPlace vacancyPlaceToChange = CommonLogic.GetVacancyPlace(columnValue, db);
             bool isDirty = true;
             foreach (var item in _vacancyPlacesProperties)
             {
