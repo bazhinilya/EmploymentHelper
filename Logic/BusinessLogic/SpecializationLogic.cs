@@ -1,5 +1,4 @@
-﻿using EmploymentHelper.BLogic;
-using EmploymentHelper.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EmploymentHelper.ModelsLogic
+namespace EmploymentHelper.Logic.BusinessLogic
 {
     public class SpecializationLogic
     {
@@ -46,7 +45,7 @@ namespace EmploymentHelper.ModelsLogic
             await using var db = new VacancyContext();
             Specialization specializationToCheck = db.Specializations.FirstOrDefault(s => s.Code == newValue || s.Name == newValue);
             if (specializationToCheck != null) throw new Exception("This specialization already exsist.");
-            Specialization specializationToChange = InnerLogic.GetSpecialization(columnValue, db);
+            Specialization specializationToChange = CommonLogic.GetSpecialization(columnValue, db);
             bool isDirty = true;
             foreach (var item in _specializationsProperties)
             {

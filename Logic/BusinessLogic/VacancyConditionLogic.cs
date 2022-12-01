@@ -1,5 +1,4 @@
-﻿using EmploymentHelper.BLogic;
-using EmploymentHelper.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EmploymentHelper.ModelsLogic
+namespace EmploymentHelper.Logic.BusinessLogic
 {
     public class VacancyConditionLogic
     {
@@ -35,7 +34,7 @@ namespace EmploymentHelper.ModelsLogic
             string conditionValue)
         {
             await using var db = new VacancyContext();
-            Jobopening jobopeningToCheck = InnerLogic.GetJobopening(jobopeningColumnValue, db);
+            Jobopening jobopeningToCheck = CommonLogic.GetJobopening(jobopeningColumnValue, db);
             VacancyCondition vacancyConditionToCheck = db.VacancyConditions
                                                          .FirstOrDefault(vc => vc.ConditionType == conditionType && vc.JobopeningId == jobopeningToCheck.Id);
             if (vacancyConditionToCheck != null) throw new Exception("This vacancy condition already exist.");

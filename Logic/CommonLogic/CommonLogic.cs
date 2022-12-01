@@ -4,9 +4,9 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace EmploymentHelper.BLogic
+namespace EmploymentHelper.Logic
 {
-    internal class InnerLogic
+    internal class CommonLogic
     {
         public static bool IsINN(string inn) => Regex.IsMatch(inn, @"^(\d{10}|\d{12})$");
         public static bool IsWord(string word) => Regex.IsMatch(word, @"\s*[a-zA-Zа-яА-Я]+\s*");

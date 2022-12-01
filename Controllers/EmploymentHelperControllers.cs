@@ -1,9 +1,9 @@
-﻿using EmploymentHelper.ModelsLogic;
-using EmploymentHelper.Models;
+﻿using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EmploymentHelper.Logic.BusinessLogic;
 
 namespace EmploymentHelper
 {

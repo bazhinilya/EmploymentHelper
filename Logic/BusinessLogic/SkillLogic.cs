@@ -1,5 +1,4 @@
-﻿using EmploymentHelper.BLogic;
-using EmploymentHelper.Context;
+﻿using EmploymentHelper.Context;
 using EmploymentHelper.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EmploymentHelper.ModelsLogic
+namespace EmploymentHelper.Logic.BusinessLogic
 {
     public class SkillLogic
     {
@@ -33,7 +32,7 @@ namespace EmploymentHelper.ModelsLogic
         public async Task<ActionResult<Skill>> AddSkill(string jobopeningColumnValue, string name)
         {
             await using var db = new VacancyContext();
-            Jobopening jobopeningToCheck = InnerLogic.GetJobopening(jobopeningColumnValue, db);
+            Jobopening jobopeningToCheck = CommonLogic.GetJobopening(jobopeningColumnValue, db);
             Guid skillId = Guid.NewGuid();
             Skill skillToCreate = new() { Id = skillId, Name = name };
             db.Skills.Add(skillToCreate);
